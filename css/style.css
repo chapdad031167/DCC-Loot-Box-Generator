@@ -247,9 +247,18 @@ button.dev {
 @keyframes cursor-blink { 50% { opacity: 0; } }
 
 /* ── Rarity escalation ──────────────────────────────────────────────── */
-.rarity-trash { --rc: var(--c-trash); box-shadow: none; }
-.rarity-trash .item-name { text-shadow: none; }
-.rarity-trash { animation: card-thud 0.5s ease-in both; }
+/* Every .rarity-* element gets the color; only full item cards get the
+   heavy treatment (animations, shimmer), so collection minis stay calm. */
+.rarity-trash     { --rc: var(--c-trash); }
+.rarity-common    { --rc: var(--c-common); }
+.rarity-uncommon  { --rc: var(--c-uncommon); }
+.rarity-rare      { --rc: var(--c-rare); }
+.rarity-epic      { --rc: var(--c-epic); }
+.rarity-legendary { --rc: var(--c-legendary); }
+.rarity-cursed    { --rc: var(--c-cursed); }
+
+.item-card.rarity-trash { box-shadow: none; animation: card-thud 0.5s ease-in both; }
+.item-card.rarity-trash .item-name { text-shadow: none; }
 
 @keyframes card-thud {
   0% { transform: translateY(-2.5rem); opacity: 0; }
@@ -257,24 +266,17 @@ button.dev {
   100% { transform: translateY(0); }
 }
 
-.rarity-common { --rc: var(--c-common); }
+.item-card.rarity-rare { animation: card-in 0.45s ease-out both, glow-pulse 3s ease-in-out infinite 0.45s; }
 
-.rarity-uncommon { --rc: var(--c-uncommon); }
-
-.rarity-rare { --rc: var(--c-rare); animation: card-in 0.45s ease-out both, glow-pulse 3s ease-in-out infinite 0.45s; }
-
-.rarity-epic { --rc: var(--c-epic); animation: card-in 0.45s ease-out both, glow-pulse 2.2s ease-in-out infinite 0.45s; }
+.item-card.rarity-epic { animation: card-in 0.45s ease-out both, glow-pulse 2.2s ease-in-out infinite 0.45s; }
 
 @keyframes glow-pulse {
   0%, 100% { box-shadow: 0 0 12px color-mix(in srgb, var(--rc) 30%, transparent); }
   50% { box-shadow: 0 0 30px color-mix(in srgb, var(--rc) 65%, transparent); }
 }
 
-.rarity-legendary {
-  --rc: var(--c-legendary);
-  animation: card-in 0.45s ease-out both, glow-pulse 2s ease-in-out infinite 0.45s;
-}
-.rarity-legendary::after {
+.item-card.rarity-legendary { animation: card-in 0.45s ease-out both, glow-pulse 2s ease-in-out infinite 0.45s; }
+.item-card.rarity-legendary::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -289,11 +291,8 @@ button.dev {
   55%, 100% { transform: translateX(100%); }
 }
 
-.rarity-cursed {
-  --rc: var(--c-cursed);
-  animation: card-in 0.45s ease-out both, cursed-flicker 4s steps(1) infinite 1s;
-}
-.rarity-cursed .item-stats li:last-child { color: var(--c-cursed); }
+.item-card.rarity-cursed { animation: card-in 0.45s ease-out both, cursed-flicker 4s steps(1) infinite 1s; }
+.item-card.rarity-cursed .item-stats li:last-child { color: var(--c-cursed); }
 
 @keyframes cursed-flicker {
   0%, 93%, 96.5%, 100% { filter: none; transform: translateX(0); }
@@ -301,6 +300,135 @@ button.dev {
   95% { filter: none; transform: translateX(2px); }
   96% { filter: invert(0.9) hue-rotate(140deg); transform: translateX(0); }
 }
+
+/* ── Header controls ────────────────────────────────────────────────── */
+.terminal-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+
+.sound-toggle {
+  font: inherit;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  padding: 0.35rem 0.8rem;
+  background: none;
+  color: var(--dim);
+  border: 1px solid var(--dim);
+  cursor: pointer;
+}
+.sound-toggle[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); text-shadow: 0 0 6px rgba(61, 255, 122, 0.5); }
+.sound-toggle:focus-visible { outline: 2px dashed var(--accent); outline-offset: 2px; }
+
+/* ── Share button ───────────────────────────────────────────────────── */
+.share-btn {
+  font: inherit;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  padding: 0.35rem 0.9rem;
+  background: none;
+  color: var(--rc);
+  border: 1px solid var(--rc);
+  cursor: pointer;
+  letter-spacing: 0.08em;
+}
+.share-btn:hover, .share-btn:focus-visible { background: var(--rc); color: #02120a; }
+.share-btn:focus-visible { outline: 2px dashed var(--rc); outline-offset: 2px; }
+
+/* ── Achievement toasts ─────────────────────────────────────────────── */
+.toasts {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-width: min(22rem, calc(100vw - 2rem));
+}
+
+.toast {
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  border-left: 4px solid var(--accent);
+  padding: 0.7rem 0.9rem;
+  box-shadow: 0 0 18px rgba(61, 255, 122, 0.25);
+  animation: toast-in 0.35s ease-out both;
+}
+.toast.gone { animation: toast-out 0.5s ease-in both; }
+
+.toast-kicker { margin: 0; font-size: 0.7rem; letter-spacing: 0.25em; color: var(--accent-dark); }
+.toast-title { margin: 0.15rem 0 0.3rem; color: var(--accent); font-weight: bold; }
+.toast-desc { margin: 0; color: var(--dim); font-size: 0.9rem; }
+
+@keyframes toast-in {
+  from { transform: translateX(120%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes toast-out {
+  to { transform: translateX(120%); opacity: 0; }
+}
+
+/* ── Collection log ─────────────────────────────────────────────────── */
+.collection-zone {
+  margin-top: 2.5rem;
+  border: 1px solid var(--accent-dark);
+  background: rgba(11, 18, 11, 0.6);
+  padding: 1rem;
+}
+
+.collection-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+.collection-head h2 { margin: 0; color: var(--accent); font-size: 1.05rem; letter-spacing: 0.2em; }
+.collection-meta { margin: 0; color: var(--dim); font-size: 0.85rem; }
+
+.filters { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.9rem 0; }
+.filters button {
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.25rem 0.7rem;
+  background: none;
+  color: var(--dim);
+  border: 1px solid var(--dim);
+  cursor: pointer;
+}
+.filters button[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); background: rgba(61, 255, 122, 0.08); }
+.filters button:focus-visible { outline: 2px dashed var(--accent); outline-offset: 2px; }
+
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.6rem;
+}
+
+.mini-card {
+  --rc: var(--c-common);
+  font: inherit;
+  text-align: left;
+  background: var(--panel);
+  border: 1px solid var(--rc);
+  padding: 0.55rem 0.65rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  color: var(--fg);
+}
+.mini-card:hover, .mini-card:focus-visible { box-shadow: 0 0 12px color-mix(in srgb, var(--rc) 45%, transparent); }
+.mini-card:focus-visible { outline: 2px dashed var(--rc); outline-offset: 2px; }
+.mini-rarity { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--rc); }
+.mini-name { font-size: 0.92rem; line-height: 1.35; }
+
+.collection-empty { color: var(--dim); font-style: italic; }
+
+.purge {
+  font: inherit;
+  font-size: 0.85rem;
+  margin-top: 1rem;
+  padding: 0.3rem 0.8rem;
+  background: none;
+  color: var(--c-cursed);
+  border: 1px solid var(--c-cursed);
+  cursor: pointer;
+  opacity: 0.75;
+}
+.purge:hover, .purge:focus-visible { opacity: 1; background: var(--c-cursed); color: #02120a; }
 
 /* ── Footer ─────────────────────────────────────────────────────────── */
 footer {
