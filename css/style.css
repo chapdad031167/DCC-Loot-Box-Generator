@@ -1,68 +1,325 @@
-/* Phase 1: deliberately minimal. The dungeon-terminal aesthetic lands in Phase 2. */
+/* LOOT CRAWL — dark dungeon-terminal aesthetic. CRT-green accents, no tiny text. */
 
 :root {
-  --bg: #111;
-  --fg: #d8d8d8;
-  --accent: #4ee44e;
+  --bg: #060a06;
+  --panel: #0b120b;
+  --fg: #cfe3cf;
+  --dim: #7d947d;
+  --accent: #3dff7a;
+  --accent-dark: #1a7a3c;
+
+  --c-trash: #8a7a62;
+  --c-common: #a9b4a9;
+  --c-uncommon: #3dff7a;
+  --c-rare: #4aa8ff;
+  --c-epic: #b45eff;
+  --c-legendary: #ffb837;
+  --c-cursed: #ff3355;
+
+  --b-bronze: #b08d57;
+  --b-silver: #c9ced4;
+  --b-gold: #ffb837;
+  --b-platinum: #a8dce8;
+  --b-legendary: #ff8a3d;
+  --b-celestial: #e44ee0;
 }
 
 * { box-sizing: border-box; }
 
+html { background: var(--bg); }
+
 body {
   margin: 0 auto;
-  max-width: 720px;
-  padding: 1rem;
+  max-width: 760px;
+  min-height: 100vh;
+  padding: 1rem 1rem 2rem;
   background: var(--bg);
   color: var(--fg);
-  font-family: ui-monospace, 'Cascadia Mono', 'Courier New', monospace;
-  line-height: 1.5;
+  font-family: 'Cascadia Mono', ui-monospace, Menlo, Consolas, 'Courier New', monospace;
+  font-size: 16px;
+  line-height: 1.55;
 }
 
-h1 { color: var(--accent); margin-bottom: 0; }
-.tagline { margin-top: 0.25rem; opacity: 0.7; }
+/* CRT scanlines + vignette overlay */
+.crt {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.45) 100%);
+  mix-blend-mode: multiply;
+}
 
-.controls { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+/* ── Header ─────────────────────────────────────────────────────────── */
+.terminal-bar {
+  border: 1px solid var(--accent-dark);
+  background: var(--panel);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 0 18px rgba(61, 255, 122, 0.08);
+}
 
-button {
+h1 {
+  margin: 0;
+  color: var(--accent);
+  font-size: 1.6rem;
+  letter-spacing: 0.3em;
+  text-shadow: 0 0 8px rgba(61, 255, 122, 0.55);
+}
+
+.tagline { margin: 0.25rem 0 0; color: var(--dim); font-size: 0.9rem; }
+
+/* ── Controls ───────────────────────────────────────────────────────── */
+.box-zone { text-align: center; margin-bottom: 1rem; }
+
+#open-box {
   font: inherit;
-  padding: 0.75rem 1.5rem;
-  background: #222;
+  font-size: 1.35rem;
+  letter-spacing: 0.25em;
+  padding: 1rem 2.5rem;
+  min-width: min(100%, 20rem);
+  background: var(--panel);
   color: var(--accent);
   border: 2px solid var(--accent);
   cursor: pointer;
+  text-shadow: 0 0 6px rgba(61, 255, 122, 0.6);
+  box-shadow: 0 0 14px rgba(61, 255, 122, 0.25), inset 0 0 14px rgba(61, 255, 122, 0.07);
+  animation: button-pulse 2.4s ease-in-out infinite;
 }
-button:hover, button:focus-visible { background: var(--accent); color: #000; }
-button.dev { border-style: dashed; opacity: 0.6; }
 
+#open-box:hover:not(:disabled),
+#open-box:focus-visible {
+  background: var(--accent);
+  color: #02120a;
+  text-shadow: none;
+  animation: none;
+}
+
+#open-box:focus-visible { outline: 3px dashed var(--accent); outline-offset: 4px; }
+
+#open-box:disabled { opacity: 0.45; cursor: wait; animation: none; }
+
+@keyframes button-pulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(61, 255, 122, 0.2), inset 0 0 10px rgba(61, 255, 122, 0.05); }
+  50% { box-shadow: 0 0 24px rgba(61, 255, 122, 0.45), inset 0 0 18px rgba(61, 255, 122, 0.12); }
+}
+
+.counter { color: var(--dim); margin: 0.75rem 0 0; }
+
+button.dev {
+  font: inherit;
+  margin-top: 0.5rem;
+  padding: 0.4rem 1rem;
+  background: none;
+  color: var(--dim);
+  border: 1px dashed var(--dim);
+  cursor: pointer;
+}
+
+/* ── Box reveal stage ───────────────────────────────────────────────── */
+.stage { min-height: 12rem; }
+
+.box-banner {
+  text-align: center;
+  letter-spacing: 0.25em;
+  margin: 0.5rem 0 1rem;
+  font-size: 1.05rem;
+}
+
+.loot-box {
+  width: 7.5rem;
+  height: 7.5rem;
+  margin: 1.5rem auto;
+  display: grid;
+  place-items: center;
+  font-size: 3rem;
+  border: 3px solid currentColor;
+  box-shadow: 0 0 22px currentColor, inset 0 0 16px rgba(0, 0, 0, 0.6);
+  background: var(--panel);
+  animation: box-materialize 0.4s ease-out both;
+}
+
+.loot-box::before { content: '?'; text-shadow: 0 0 12px currentColor; }
+
+.loot-box.rumble { animation: box-rumble 0.9s linear both; }
+.loot-box.burst { animation: box-burst 0.35s ease-in both; }
+
+@keyframes box-materialize {
+  from { transform: scale(0.2) rotate(8deg); opacity: 0; }
+  to { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes box-rumble {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  15% { transform: translate(-2px, 1px) rotate(-1deg); }
+  30% { transform: translate(3px, -1px) rotate(1deg); }
+  45% { transform: translate(-3px, 2px) rotate(-2deg); }
+  60% { transform: translate(4px, -2px) rotate(2deg); }
+  75% { transform: translate(-5px, 2px) rotate(-3deg); }
+  90% { transform: translate(5px, -3px) rotate(3deg); }
+  100% { transform: translate(0, 0) rotate(0deg) scale(1.08); }
+}
+
+@keyframes box-burst {
+  0% { transform: scale(1.08); opacity: 1; }
+  60% { transform: scale(1.6); opacity: 0.9; filter: brightness(3); }
+  100% { transform: scale(2.4); opacity: 0; filter: brightness(6); }
+}
+
+/* Box tier colors drive the crate + banner via currentColor */
+.tier-bronze    { color: var(--b-bronze); }
+.tier-silver    { color: var(--b-silver); }
+.tier-gold      { color: var(--b-gold); }
+.tier-platinum  { color: var(--b-platinum); }
+.tier-legendary { color: var(--b-legendary); }
+.tier-celestial { color: var(--b-celestial); animation-name: box-materialize; }
+.tier-celestial.loot-box { animation: box-materialize 0.4s ease-out both, celestial-hue 3s linear infinite; }
+
+@keyframes celestial-hue {
+  from { filter: hue-rotate(0deg); }
+  to { filter: hue-rotate(360deg); }
+}
+
+/* ── Item card ──────────────────────────────────────────────────────── */
 .item-card {
-  border: 2px solid #555;
-  padding: 1rem;
-  margin: 1rem 0;
+  --rc: var(--c-common);
+  position: relative;
+  overflow: hidden;
+  background: var(--panel);
+  border: 2px solid var(--rc);
+  padding: 1.1rem 1.25rem 1.25rem;
+  margin: 0.75rem auto;
+  max-width: 640px;
+  box-shadow: 0 0 16px color-mix(in srgb, var(--rc) 35%, transparent);
+  animation: card-in 0.45s ease-out both;
 }
-.item-card:focus { outline: 2px dashed var(--accent); }
 
-.rarity-tag { text-transform: uppercase; letter-spacing: 0.15em; font-size: 0.8rem; margin: 0; }
-.item-name { margin: 0.25rem 0 0; }
-.item-sub { margin: 0.25rem 0 0.75rem; opacity: 0.7; font-size: 0.9rem; }
-.item-stats { margin: 0; padding-left: 1.25rem; }
-.item-flavor { font-style: italic; opacity: 0.85; }
-.system-line { color: var(--accent); }
+.item-card:focus { outline: 2px dashed var(--rc); outline-offset: 3px; }
 
-.box-banner { letter-spacing: 0.2em; opacity: 0.8; margin-bottom: 0; }
-.box-bronze .box-banner    { color: #b08d57; }
-.box-silver .box-banner    { color: #c0c0c0; }
-.box-gold .box-banner      { color: #e4b44e; }
-.box-platinum .box-banner  { color: #a8d8e8; }
-.box-legendary .box-banner { color: #e47b4e; }
-.box-celestial .box-banner { color: #e44ee0; }
+@keyframes card-in {
+  from { transform: translateY(1.5rem) scale(0.96); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
 
-/* Placeholder rarity treatment — Phase 2 replaces with glow/animation tiers. */
-.rarity-trash     { border-color: #5a4a3a; color: #9a8a7a; }
-.rarity-common    { border-color: #888; }
-.rarity-uncommon  { border-color: #4ee44e; }
-.rarity-rare      { border-color: #4ea9e4; }
-.rarity-epic      { border-color: #b44ee4; }
-.rarity-legendary { border-color: #e4b44e; }
-.rarity-cursed    { border-color: #e44e4e; }
+.rarity-tag {
+  display: inline-block;
+  margin: 0;
+  padding: 0.1rem 0.6rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #02120a;
+  background: var(--rc);
+}
 
-footer { margin-top: 3rem; font-size: 0.8rem; opacity: 0.6; }
+.item-name {
+  margin: 0.6rem 0 0;
+  font-size: 1.35rem;
+  line-height: 1.3;
+  color: var(--rc);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--rc) 60%, transparent);
+}
+
+.item-sub { margin: 0.3rem 0 0.9rem; color: var(--dim); font-size: 0.95rem; }
+
+.item-stats { margin: 0 0 0.9rem; padding: 0; list-style: none; }
+.item-stats li { padding-left: 1.2rem; position: relative; margin-bottom: 0.35rem; }
+.item-stats li::before { content: '▸'; position: absolute; left: 0; color: var(--rc); }
+
+.item-flavor {
+  font-style: italic;
+  color: var(--dim);
+  border-left: 3px solid var(--rc);
+  padding-left: 0.8rem;
+  margin: 0 0 1rem;
+}
+
+.system-line { margin: 0; color: var(--accent); }
+.system-line::before { content: 'SYSTEM> '; color: var(--accent-dark); font-weight: bold; }
+.system-line::after {
+  content: '█';
+  margin-left: 2px;
+  animation: cursor-blink 1.1s steps(1) infinite;
+}
+
+@keyframes cursor-blink { 50% { opacity: 0; } }
+
+/* ── Rarity escalation ──────────────────────────────────────────────── */
+.rarity-trash { --rc: var(--c-trash); box-shadow: none; }
+.rarity-trash .item-name { text-shadow: none; }
+.rarity-trash { animation: card-thud 0.5s ease-in both; }
+
+@keyframes card-thud {
+  0% { transform: translateY(-2.5rem); opacity: 0; }
+  70% { transform: translateY(0.3rem); opacity: 1; }
+  100% { transform: translateY(0); }
+}
+
+.rarity-common { --rc: var(--c-common); }
+
+.rarity-uncommon { --rc: var(--c-uncommon); }
+
+.rarity-rare { --rc: var(--c-rare); animation: card-in 0.45s ease-out both, glow-pulse 3s ease-in-out infinite 0.45s; }
+
+.rarity-epic { --rc: var(--c-epic); animation: card-in 0.45s ease-out both, glow-pulse 2.2s ease-in-out infinite 0.45s; }
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 12px color-mix(in srgb, var(--rc) 30%, transparent); }
+  50% { box-shadow: 0 0 30px color-mix(in srgb, var(--rc) 65%, transparent); }
+}
+
+.rarity-legendary {
+  --rc: var(--c-legendary);
+  animation: card-in 0.45s ease-out both, glow-pulse 2s ease-in-out infinite 0.45s;
+}
+.rarity-legendary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 184, 55, 0.18) 48%, rgba(255, 255, 220, 0.32) 50%, rgba(255, 184, 55, 0.18) 52%, transparent 70%);
+  transform: translateX(-100%);
+  animation: shimmer 2.8s ease-in-out infinite 0.6s;
+  pointer-events: none;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  55%, 100% { transform: translateX(100%); }
+}
+
+.rarity-cursed {
+  --rc: var(--c-cursed);
+  animation: card-in 0.45s ease-out both, cursed-flicker 4s steps(1) infinite 1s;
+}
+.rarity-cursed .item-stats li:last-child { color: var(--c-cursed); }
+
+@keyframes cursed-flicker {
+  0%, 93%, 96.5%, 100% { filter: none; transform: translateX(0); }
+  94% { filter: invert(0.9) hue-rotate(140deg); transform: translateX(-3px); }
+  95% { filter: none; transform: translateX(2px); }
+  96% { filter: invert(0.9) hue-rotate(140deg); transform: translateX(0); }
+}
+
+/* ── Footer ─────────────────────────────────────────────────────────── */
+footer {
+  margin-top: 3rem;
+  color: var(--dim);
+  font-size: 0.85rem;
+  text-align: center;
+  border-top: 1px solid var(--accent-dark);
+  padding-top: 1rem;
+}
+
+/* ── Accessibility & small screens ──────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+@media (max-width: 480px) {
+  body { padding: 0.6rem 0.6rem 1.5rem; }
+  h1 { font-size: 1.25rem; letter-spacing: 0.2em; }
+  #open-box { width: 100%; font-size: 1.15rem; }
+  .item-card { padding: 0.9rem 0.9rem 1rem; }
+}

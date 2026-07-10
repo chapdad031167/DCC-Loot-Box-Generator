@@ -1,25 +1,45 @@
-// main.js — entry point: wires the box button to the generator.
+// main.js — entry point: wires the box button to the generator and reveal.
+// URL params: ?seed=123 (reproducible), ?box=gold / ?rarity=cursed (force,
+// for testing/screenshots), ?dev=1 (batch sample button).
+// Classic script (loaded last) so the app runs from file://.
+(() => {
+  const { makeRng, seedFromQuery } = globalThis.LOOT.rng;
+  const { openBox } = globalThis.LOOT.generator;
+  const { playReveal, renderOpening } = globalThis.LOOT.ui;
 
-import { makeRng, seedFromQuery } from './rng.js';
-import { openBox } from './generator.js';
-import { showOpening, renderOpening } from './ui.js';
+  const params = new URLSearchParams(window.location.search);
+  const rng = makeRng(seedFromQuery(window.location.search));
+  const forced = {
+    boxTier: params.get('box') || undefined,
+    rarity: params.get('rarity') || undefined,
+  };
 
-const rng = makeRng(seedFromQuery(window.location.search));
+  const openBtn = document.getElementById('open-box');
+  const stage = document.getElementById('stage');
+  const counterEl = document.getElementById('boxes-opened');
 
-const openBtn = document.getElementById('open-box');
-const reveal = document.getElementById('reveal');
-const counterEl = document.getElementById('boxes-opened');
+  let boxesOpened = 0;
+  let revealing = false;
 
-let boxesOpened = 0;
+  openBtn.addEventListener('click', async () => {
+    if (revealing) return;
+    revealing = true;
+    openBtn.disabled = true;
+    try {
+      await playReveal(stage, openBox(rng, forced));
+      boxesOpened += 1;
+      counterEl.textContent = `Boxes opened: ${boxesOpened}`;
+    } finally {
+      revealing = false;
+      openBtn.disabled = false;
+      openBtn.focus();
+    }
+  });
 
-openBtn.addEventListener('click', () => {
-  showOpening(reveal, openBox(rng));
-  boxesOpened += 1;
-  counterEl.textContent = `Boxes opened: ${boxesOpened}`;
-});
-
-// Phase 1 dev helper: dump a batch so the writing can be judged at a glance.
-const sampleBtn = document.getElementById('sample-batch');
-sampleBtn.addEventListener('click', () => {
-  reveal.replaceChildren(...Array.from({ length: 20 }, () => renderOpening(openBox(rng))));
-});
+  // Dev helper (?dev=1): dump a batch so the writing can be judged at a glance.
+  const sampleBtn = document.getElementById('sample-batch');
+  if (params.get('dev')) sampleBtn.hidden = false;
+  sampleBtn.addEventListener('click', () => {
+    stage.replaceChildren(...Array.from({ length: 20 }, () => renderOpening(openBox(rng, forced))));
+  });
+})();

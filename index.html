@@ -3,28 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="LOOT CRAWL — a satirical dungeon-crawler loot box generator. The System dispenses. You cope.">
   <title>LOOT CRAWL — a parody loot box generator</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <header>
+  <div class="crt" aria-hidden="true"></div>
+
+  <header class="terminal-bar">
     <h1>LOOT CRAWL</h1>
-    <p class="tagline">The System dispenses. You cope.</p>
+    <p class="tagline">// DUNGEON PROVISIONS INTERFACE v2.0 — The System dispenses. You cope.</p>
   </header>
 
   <main>
-    <div class="controls">
-      <button id="open-box" type="button">OPEN BOX</button>
-      <button id="sample-batch" type="button" class="dev">dev: 20 samples</button>
-    </div>
-    <p id="boxes-opened" aria-live="polite">Boxes opened: 0</p>
-    <section id="reveal" aria-live="polite"></section>
+    <section class="box-zone">
+      <button id="open-box" type="button" aria-describedby="boxes-opened">OPEN BOX</button>
+      <p id="boxes-opened" class="counter" aria-live="polite">Boxes opened: 0</p>
+      <button id="sample-batch" type="button" class="dev" hidden>dev: 20 samples</button>
+    </section>
+
+    <section id="stage" class="stage" aria-live="polite"></section>
   </main>
 
   <footer>
     <p>A fan-made parody generator inspired by the LitRPG genre. Not affiliated with any book series.</p>
   </footer>
 
-  <script type="module" src="js/main.js"></script>
+  <!-- Classic scripts in dependency order (not ES modules) so the page
+       works when opened directly from file:// — browsers block module
+       imports on the file protocol. -->
+  <script src="js/tables.js"></script>
+  <script src="js/rng.js"></script>
+  <script src="js/generator.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
