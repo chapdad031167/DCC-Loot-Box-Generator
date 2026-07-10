@@ -2,18 +2,36 @@
 // Takes an rng (see rng.js) so results are reproducible under ?seed=.
 
 import {
-  RARITIES, BASE_ITEMS, PREFIXES, SUFFIXES, MATERIALS,
+  BOX_TIERS, RARITIES, BASE_ITEMS, PREFIXES, SUFFIXES, MATERIALS,
   TRASH_DECORATIONS, LEGENDARY_NAMES, LEGENDARY_EPITHETS,
   CURSED_TWISTS, FLAVOR_FRAMES, PLACES, SYSTEM_LINES,
+  JUNK_OBJECTS, WONDROUS_OBJECTS,
 } from './tables.js';
 
-export function pickRarity(rng, forcedId) {
+// Every opening rolls a box tier first; the tier's own weights decide loot rarity.
+export function pickBoxTier(rng, forcedId) {
+  if (forcedId) {
+    const forced = BOX_TIERS.find((b) => b.id === forcedId);
+    if (forced) return forced;
+  }
+  return rng.weighted(BOX_TIERS);
+}
+
+export function pickRarity(rng, boxTier, forcedId) {
   if (forcedId) {
     const forced = RARITIES.find((r) => r.id === forcedId);
     if (forced) return forced;
   }
-  return rng.weighted(RARITIES);
+  const weights = boxTier?.rarityWeights;
+  const pool = weights
+    ? RARITIES.map((r) => ({ ...r, weight: weights[r.id] ?? r.weight }))
+    : RARITIES;
+  return rng.weighted(pool);
 }
+
+// Chance that a given rarity yields a random object instead of equipment.
+// Low rarity -> absurd junk; rare and up -> wondrous (powerful, still unsettling).
+const OBJECT_CHANCE = { trash: 0.55, common: 0.25, uncommon: 0, rare: 0.2, epic: 0.2, legendary: 0.15, cursed: 0 };
 
 // Rarity tier -> the {X} magnitude range for stat lines.
 const POWER = [
@@ -72,6 +90,20 @@ function bonusStat(rng, tier) {
   return `Value: ${value} gold (before the merchant sees you coming)`;
 }
 
+// Legendary proper names shouldn't repeat back-to-back in a session;
+// cycle through the pool before reusing any.
+let usedLegendaryNames = new Set();
+function pickLegendaryName(rng) {
+  let pool = LEGENDARY_NAMES.filter((n) => !usedLegendaryNames.has(n));
+  if (pool.length === 0) {
+    usedLegendaryNames = new Set();
+    pool = LEGENDARY_NAMES;
+  }
+  const name = rng.pick(pool);
+  usedLegendaryNames.add(name);
+  return name;
+}
+
 function buildName(rng, base, tier) {
   const parts = { prefix: null, suffix: null, material: null };
   let name;
@@ -91,18 +123,21 @@ function buildName(rng, base, tier) {
       parts.suffix = rng.pick(SUFFIXES);
       name = `${base.name} ${parts.suffix.text}`;
     }
-  } else if (tier === 3) {
-    parts.prefix = rng.pick(PREFIXES);
-    parts.suffix = rng.pick(SUFFIXES);
-    name = `${parts.prefix.text} ${base.name} ${parts.suffix.text}`;
-  } else if (tier === 4) {
-    parts.prefix = rng.pick(PREFIXES);
-    parts.suffix = rng.pick(SUFFIXES);
-    parts.material = rng.pick(MATERIALS);
-    name = `${parts.prefix.text} ${parts.material} ${base.name} ${parts.suffix.text}`;
+  } else if (tier === 3 || tier === 4) {
+    // Cap names at three parts: prefix + base + suffix, with material
+    // occasionally standing in for the prefix at epic.
+    if (tier === 4 && rng.chance(0.35)) {
+      parts.material = rng.pick(MATERIALS);
+      parts.suffix = rng.pick(SUFFIXES);
+      name = `${parts.material} ${base.name} ${parts.suffix.text}`;
+    } else {
+      parts.prefix = rng.pick(PREFIXES);
+      parts.suffix = rng.pick(SUFFIXES);
+      name = `${parts.prefix.text} ${base.name} ${parts.suffix.text}`;
+    }
   } else {
     // Legendary & cursed: a proper name and an epithet.
-    const proper = rng.pick(LEGENDARY_NAMES);
+    const proper = pickLegendaryName(rng);
     const epithet = rng.pick(LEGENDARY_EPITHETS).replaceAll('{base}', base.name);
     name = `${proper}, ${epithet}`;
   }
@@ -129,8 +164,31 @@ function buildFlavor(rng, base, parts) {
   return flavor;
 }
 
-export function generateItem(rng, forcedRarityId) {
-  const rarity = pickRarity(rng, forcedRarityId);
+// Junk & wondrous objects carry their whole joke with them; no affixes,
+// no core stat — just the object, exactly as unsettling as written.
+function generateObject(rng, rarity) {
+  const pool = rarity.tier <= 1 ? JUNK_OBJECTS : WONDROUS_OBJECTS;
+  const obj = rng.pick(pool);
+  return {
+    name: obj.name,
+    base: obj.name,
+    type: 'object',
+    rarity: { id: rarity.id, name: rarity.name, tier: rarity.tier },
+    stats: obj.stats.map((s) => fill(s, rng, rarity.tier)),
+    flavor: obj.flavor,
+    systemLine: rng.pick(SYSTEM_LINES[rarity.id]),
+  };
+}
+
+// opts: { boxTier?: BOX_TIERS entry, rarity?: rarity id to force, noObjects?: bool }
+export function generateItem(rng, opts = {}) {
+  const boxTier = opts.boxTier ?? null;
+  const rarity = pickRarity(rng, boxTier, opts.rarity);
+
+  if (!opts.noObjects && rng.chance(OBJECT_CHANCE[rarity.id] ?? 0)) {
+    return generateObject(rng, rarity);
+  }
+
   const tier = rarity.tier;
   const base = rng.pick(BASE_ITEMS);
   const parts = buildName(rng, base, tier);
@@ -151,11 +209,21 @@ export function generateItem(rng, forcedRarityId) {
   };
 }
 
+// One full box opening: roll the box, then what falls out of it.
+export function openBox(rng, opts = {}) {
+  const boxTier = pickBoxTier(rng, opts.boxTier);
+  const item = generateItem(rng, { ...opts, boxTier });
+  return { boxTier: { id: boxTier.id, name: boxTier.name }, item };
+}
+
 // Plain-text rendering, used by the share button and Phase 1 sample dumps.
-export function itemToText(item) {
+export function itemToText(item, boxTier) {
   return [
+    ...(boxTier ? [`<< ${boxTier.name.toUpperCase()} BOX >>`] : []),
     `[${item.rarity.name.toUpperCase()}] ${item.name}`,
-    `${item.rarity.name} ${item.base} (${item.type})`,
+    item.base === item.name
+      ? `${item.rarity.name} ${item.type}`
+      : `${item.rarity.name} ${item.base} (${item.type})`,
     ...item.stats.map((s) => `  * ${s}`),
     `"${item.flavor}"`,
     `The System: "${item.systemLine}"`,

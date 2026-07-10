@@ -48,6 +48,14 @@ button.dev { border-style: dashed; opacity: 0.6; }
 .item-flavor { font-style: italic; opacity: 0.85; }
 .system-line { color: var(--accent); }
 
+.box-banner { letter-spacing: 0.2em; opacity: 0.8; margin-bottom: 0; }
+.box-bronze .box-banner    { color: #b08d57; }
+.box-silver .box-banner    { color: #c0c0c0; }
+.box-gold .box-banner      { color: #e4b44e; }
+.box-platinum .box-banner  { color: #a8d8e8; }
+.box-legendary .box-banner { color: #e47b4e; }
+.box-celestial .box-banner { color: #e44ee0; }
+
 /* Placeholder rarity treatment — Phase 2 replaces with glow/animation tiers. */
 .rarity-trash     { border-color: #5a4a3a; color: #9a8a7a; }
 .rarity-common    { border-color: #888; }
