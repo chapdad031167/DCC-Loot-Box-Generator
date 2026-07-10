@@ -9,9 +9,13 @@
 </head>
 <body>
   <div class="crt" aria-hidden="true"></div>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
 
   <header class="terminal-bar">
-    <h1>LOOT CRAWL</h1>
+    <div class="terminal-head">
+      <h1>LOOT CRAWL</h1>
+      <button id="sound-toggle" type="button" class="sound-toggle" aria-pressed="false">SOUND: OFF</button>
+    </div>
     <p class="tagline">// DUNGEON PROVISIONS INTERFACE v2.0 — The System dispenses. You cope.</p>
   </header>
 
@@ -23,6 +27,25 @@
     </section>
 
     <section id="stage" class="stage" aria-live="polite"></section>
+
+    <section class="collection-zone" aria-labelledby="collection-title">
+      <div class="collection-head">
+        <h2 id="collection-title">COLLECTION LOG</h2>
+        <p id="collection-meta" class="collection-meta"></p>
+      </div>
+      <div id="rarity-filters" class="filters" role="group" aria-label="Filter collection by rarity">
+        <button type="button" data-filter="all" aria-pressed="true">All</button>
+        <button type="button" data-filter="trash" aria-pressed="false">Trash</button>
+        <button type="button" data-filter="common" aria-pressed="false">Common</button>
+        <button type="button" data-filter="uncommon" aria-pressed="false">Uncommon</button>
+        <button type="button" data-filter="rare" aria-pressed="false">Rare</button>
+        <button type="button" data-filter="epic" aria-pressed="false">Epic</button>
+        <button type="button" data-filter="legendary" aria-pressed="false">Legendary</button>
+        <button type="button" data-filter="cursed" aria-pressed="false">Cursed</button>
+      </div>
+      <div id="collection"></div>
+      <button id="purge-log" type="button" class="purge">[ PURGE LOG ]</button>
+    </section>
   </main>
 
   <footer>
@@ -35,6 +58,9 @@
   <script src="js/tables.js"></script>
   <script src="js/rng.js"></script>
   <script src="js/generator.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/achievements.js"></script>
+  <script src="js/sound.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/main.js"></script>
 </body>
