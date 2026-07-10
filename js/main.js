@@ -159,7 +159,7 @@
       store.setSetting('voice', voice.enabled);
       paintVoiceBtn();
       if (voice.enabled) {
-        voice.speak('Voice mode enabled. I hope you know what you have done.');
+        voice.speak('Voice mode enabled. I hope you know what you have done.', 'cursed');
         toastAll(achievements.check(store, { event: 'voice' }));
       }
     });
@@ -206,8 +206,9 @@
   // On any API failure, keep the static line and add the "offline snark" badge.
   // Voice mode speaks whichever line ends up on the card.
   function announceItem(item) {
+    const mood = item.rarity.id; // the delivery reacts to the loot
     if (!announcer.enabled) {
-      voice.speak(item.systemLine);
+      voice.speak(item.systemLine, mood);
       return;
     }
     const lineEl = stage.querySelector('.system-line');
@@ -217,10 +218,10 @@
       if (result.status === 'ok') {
         lineEl.textContent = `“${result.text}”`;
         lineEl.classList.add('ai-line');
-        voice.speak(result.text);
+        voice.speak(result.text, mood);
       } else if (result.status === 'error') {
         lineEl.classList.add('offline');
-        voice.speak(item.systemLine);
+        voice.speak(item.systemLine, mood);
       }
     });
   }

@@ -152,10 +152,25 @@ number of boxes. The System believes in you, statistically alone.
 Click **VOICE: OFF** in the header and The System reads its line aloud after
 every reveal, using the browser's built-in Web Speech API — no API key, no
 audio files, no network. It speaks whichever line is on the card: the built-in
-snark normally, or the live AI announcement when AI mode is on. Voice quality
-varies by platform (macOS/iOS and Chrome on Android sound best); a slightly
-synthetic deadpan is considered in character. The toggle hides itself on
-browsers without speech support, and the preference persists.
+snark normally, or the live AI announcement when AI mode is on.
+
+The delivery is a **performance, not a reading**. Browsers don't support
+SSML, so each line is split into sentences and performed beat by beat, with
+per-sentence pitch and rate, pauses between sentences, and a held pause
+before the punchline — and the mood reacts to the loot:
+
+| Rarity | Delivery |
+|---|---|
+| Trash | slow, pitch sinking through the line — an audible sigh |
+| Rare / Epic | brightening pitch, quickening pace |
+| Legendary | mock game-show excitement; the punchline gets a held beat and a lift |
+| Cursed | slowed way down, pitch wobbling between sentences — quietly wrong |
+
+Voice quality varies by platform — the picker prefers the liveliest voice
+installed (Edge's neural voices, Siri-class voices, Google voices) before
+falling back to the flat legacy ones. A slightly synthetic deadpan is
+considered in character. The toggle hides itself on browsers without speech
+support, and the preference persists.
 
 ## Deploying to GitHub Pages
 
