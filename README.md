@@ -30,8 +30,12 @@ darkly amused game-show host — hands you something like:
   click-to-inspect, persisted in localStorage
 - **Share** — one click copies a formatted text block of any item
 - **Sound** — optional WebAudio-generated fanfares (no audio files), off by default
+- **Voice** — optional; The System reads its commentary aloud via the
+  browser-built-in Web Speech API (no keys, no assets, off by default,
+  tuned low and slow for maximum bored omniscience)
 - **AI announcer mode** — optional; bring your own Anthropic API key and The
-  System improvises a unique announcement for every box
+  System improvises a unique announcement for every box — with voice mode on,
+  it speaks the AI line too
 
 ## Running it
 
@@ -142,6 +146,16 @@ Safety and robustness:
 Cost note: each announcement is one small API call (a few hundred tokens).
 Use a key with a spending limit if you're going to open a truly deranged
 number of boxes. The System believes in you, statistically alone.
+
+## Voice mode (optional, off by default)
+
+Click **VOICE: OFF** in the header and The System reads its line aloud after
+every reveal, using the browser's built-in Web Speech API — no API key, no
+audio files, no network. It speaks whichever line is on the card: the built-in
+snark normally, or the live AI announcement when AI mode is on. Voice quality
+varies by platform (macOS/iOS and Chrome on Android sound best); a slightly
+synthetic deadpan is considered in character. The toggle hides itself on
+browsers without speech support, and the preference persists.
 
 ## Deploying to GitHub Pages
 

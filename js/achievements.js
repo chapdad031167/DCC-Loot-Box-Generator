@@ -85,6 +85,12 @@
       desc: 'You turned the sound on. Your consent has been recorded and notarized.',
       test: (s, ctx) => ctx.event === 'sound',
     },
+    {
+      id: 'voice_on',
+      title: 'It Speaks',
+      desc: 'You gave The System a voice. It always had one. Now it is out loud, and it is yours to live with.',
+      test: (s, ctx) => ctx.event === 'voice',
+    },
   ];
 
   // Returns the definitions newly unlocked by this event (already persisted).
