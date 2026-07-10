@@ -9,6 +9,7 @@
   const store = globalThis.LOOT.store;
   const achievements = globalThis.LOOT.achievements;
   const sound = globalThis.LOOT.sound;
+  const announcer = globalThis.LOOT.announcer;
 
   const params = new URLSearchParams(window.location.search);
   const rng = makeRng(seedFromQuery(window.location.search));
@@ -55,6 +56,7 @@
       refreshCounter();
       refreshCollection();
       toastAll(achievements.check(store, { event: 'open', opening }));
+      announceItem(opening.item);
     } finally {
       revealing = false;
       openBtn.disabled = false;
@@ -139,6 +141,60 @@
 
   if (store.getSetting('sound')) sound.setEnabled(true);
   paintSoundBtn();
+
+  // ── AI announcer mode (off by default; key lives in memory only) ─────
+  const aiToggle = document.getElementById('ai-toggle');
+  const aiPanel = document.getElementById('ai-panel');
+  const aiEnable = document.getElementById('ai-enable');
+  const apiKeyInput = document.getElementById('api-key');
+  const aiStatus = document.getElementById('ai-status');
+
+  function paintAiButtons() {
+    aiToggle.textContent = announcer.enabled ? 'AI: ON' : 'AI: OFF';
+    aiEnable.textContent = announcer.enabled ? 'DISABLE' : 'ENABLE';
+  }
+
+  aiToggle.addEventListener('click', () => {
+    aiPanel.hidden = !aiPanel.hidden;
+    aiToggle.setAttribute('aria-expanded', String(!aiPanel.hidden));
+    if (!aiPanel.hidden) apiKeyInput.focus();
+  });
+
+  aiEnable.addEventListener('click', () => {
+    if (announcer.enabled) {
+      announcer.configure({ key: null, on: false });
+      apiKeyInput.value = '';
+      aiStatus.textContent = 'AI announcer off. Key forgotten. The System reverts to its greatest hits.';
+    } else {
+      const key = apiKeyInput.value.trim();
+      if (!key) {
+        aiStatus.textContent = 'No key, no live snark. Paste an Anthropic API key first.';
+        return;
+      }
+      announcer.configure({ key, on: true });
+      aiStatus.textContent = 'AI announcer on. The System is now improvising. It was always improvising; now it is billing you for it.';
+    }
+    paintAiButtons();
+  });
+
+  // After a reveal, swap the static snark for a live line when it arrives.
+  // On any API failure, keep the static line and add the "offline snark" badge.
+  function announceItem(item) {
+    if (!announcer.enabled) return;
+    const lineEl = stage.querySelector('.system-line');
+    if (!lineEl) return;
+    announcer.announce(itemToText(item)).then((result) => {
+      if (!stage.contains(lineEl)) return; // card already replaced; drop it
+      if (result.status === 'ok') {
+        lineEl.textContent = `“${result.text}”`;
+        lineEl.classList.add('ai-line');
+      } else if (result.status === 'error') {
+        lineEl.classList.add('offline');
+      }
+    });
+  }
+
+  paintAiButtons();
 
   // ── Dev helper (?dev=1): batch sample view ────────────────────────────
   const sampleBtn = document.getElementById('sample-batch');

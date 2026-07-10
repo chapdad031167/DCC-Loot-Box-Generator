@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LOOT CRAWL — test suite</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .test-pass { color: var(--accent); }
+    .test-fail { color: var(--c-cursed); font-weight: bold; }
+    #results li { margin-bottom: 0.3rem; list-style: none; }
+    #summary { font-size: 1.2rem; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <header class="terminal-bar">
+    <h1>LOOT CRAWL // TEST SUITE</h1>
+    <p class="tagline">Assertions on the generator, distribution, and persistence. Reload to re-run.</p>
+  </header>
+  <main>
+    <ul id="results"></ul>
+    <p id="summary"></p>
+  </main>
+
+  <script src="js/tables.js"></script>
+  <script src="js/rng.js"></script>
+  <script src="js/generator.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/achievements.js"></script>
+  <script>
+    (() => {
+      const { makeRng } = LOOT.rng;
+      const { openBox, generateItem, pickRarity, pickBoxTier, itemToText } = LOOT.generator;
+      const T = LOOT.tables;
+
+      const results = document.getElementById('results');
+      let passed = 0, failed = 0;
+
+      function assert(name, condition, detail = '') {
+        const li = document.createElement('li');
+        if (condition) {
+          passed += 1;
+          li.className = 'test-pass';
+          li.textContent = `PASS: ${name}`;
+        } else {
+          failed += 1;
+          li.className = 'test-fail';
+          li.textContent = `FAIL: ${name}${detail ? ` — ${detail}` : ''}`;
+        }
+        results.append(li);
+      }
+
+      // ── 1. Rarity distribution: 10k base-table rolls within tolerance ──
+      {
+        const rng = makeRng(1);
+        const counts = {};
+        const N = 10000;
+        for (let i = 0; i < N; i++) {
+          const r = pickRarity(rng, null);
+          counts[r.id] = (counts[r.id] || 0) + 1;
+        }
+        // Tolerance: ±25% relative or ±1 percentage point, whichever is larger.
+        for (const r of T.RARITIES) {
+          const expected = (r.weight / 100) * N;
+          const got = counts[r.id] || 0;
+          const tolerance = Math.max(expected * 0.25, N * 0.01);
+          assert(
+            `rarity ${r.id}: ${got} within ${Math.round(tolerance)} of ${Math.round(expected)}`,
+            Math.abs(got - expected) <= tolerance,
+            `got ${got}`
+          );
+        }
+      }
+
+      // ── 2. Box tier distribution: 10k rolls within tolerance ──────────
+      {
+        const rng = makeRng(2);
+        const counts = {};
+        const N = 10000;
+        for (let i = 0; i < N; i++) {
+          const b = pickBoxTier(rng);
+          counts[b.id] = (counts[b.id] || 0) + 1;
+        }
+        for (const b of T.BOX_TIERS) {
+          const expected = (b.weight / 100) * N;
+          const got = counts[b.id] || 0;
+          const tolerance = Math.max(expected * 0.25, N * 0.01);
+          assert(
+            `box tier ${b.id}: ${got} within ${Math.round(tolerance)} of ${Math.round(expected)}`,
+            Math.abs(got - expected) <= tolerance,
+            `got ${got}`
+          );
+        }
+      }
+
+      // ── 3. No-crash generation of 1k items, all fields present ────────
+      {
+        const rng = makeRng(3);
+        let ok = true, placeholderFree = true, detail = '';
+        try {
+          for (let i = 0; i < 1000; i++) {
+            const { boxTier, item } = openBox(rng);
+            if (!item.name || !item.rarity?.id || !Array.isArray(item.stats)
+                || item.stats.length === 0 || !item.flavor || !item.systemLine
+                || !boxTier?.id) {
+              ok = false; detail = `missing field at #${i}`; break;
+            }
+            if (itemToText(item, boxTier).includes('{')) {
+              placeholderFree = false; detail = `unfilled placeholder at #${i}: ${item.name}`; break;
+            }
+          }
+        } catch (e) {
+          ok = false; detail = String(e);
+        }
+        assert('1000 openings generate without crashing, all fields present', ok, detail);
+        assert('no unfilled {X}/{hook}/{place} placeholders in 1000 openings', placeholderFree, detail);
+      }
+
+      // ── 4. Seeded reproducibility: same seed, same loot ────────────────
+      {
+        const a = makeRng(42), b = makeRng(42);
+        let identical = true;
+        for (let i = 0; i < 50; i++) {
+          const ia = openBox(a), ib = openBox(b);
+          if (itemToText(ia.item, ia.boxTier) !== itemToText(ib.item, ib.boxTier)) {
+            identical = false; break;
+          }
+        }
+        assert('seed 42 produces an identical 50-opening sequence twice', identical);
+      }
+
+      // ── 5. Forced rarity & cursed twist ────────────────────────────────
+      {
+        const rng = makeRng(5);
+        const cursed = generateItem(rng, { rarity: 'cursed', noObjects: true });
+        assert('forced cursed item is cursed', cursed.rarity.id === 'cursed');
+        assert('cursed item carries a Curse: stat line',
+          cursed.stats.some((s) => s.startsWith('Curse:')));
+        const legendary = generateItem(rng, { rarity: 'legendary', noObjects: true });
+        assert('legendary item gets a proper name (contains a comma)',
+          legendary.name.includes(','), legendary.name);
+      }
+
+      // ── 6. localStorage round-trip (preserves your real collection) ────
+      {
+        const KEY = 'lootcrawl.v1';
+        const backup = localStorage.getItem(KEY); // save the player's real data
+        try {
+          LOOT.store.purge();
+          const rng = makeRng(6);
+          const openings = Array.from({ length: 5 }, () => openBox(rng));
+          openings.forEach((o) => LOOT.store.recordOpening(o, 1700000000000));
+          LOOT.store.unlock('first_box');
+          LOOT.store.setSetting('sound', true);
+
+          LOOT.store.reload(); // force a re-read from localStorage
+          const s = LOOT.store.state;
+          assert('round-trip: boxesOpened survives reload', s.boxesOpened === 5, `got ${s.boxesOpened}`);
+          assert('round-trip: items survive reload with matching names',
+            s.items.length === 5 && s.items[0].item.name === openings[4].item.name);
+          assert('round-trip: achievement unlock survives reload', LOOT.store.isUnlocked('first_box'));
+          assert('round-trip: settings survive reload', LOOT.store.getSetting('sound') === true);
+
+          LOOT.store.purge();
+          LOOT.store.reload();
+          assert('purge: state is blank after purge + reload', LOOT.store.state.boxesOpened === 0);
+        } finally {
+          if (backup === null) localStorage.removeItem(KEY);
+          else localStorage.setItem(KEY, backup);
+          LOOT.store.reload(); // restore the player's real collection
+        }
+      }
+
+      // ── 7. Achievements fire on the right conditions ───────────────────
+      {
+        const KEY = 'lootcrawl.v1';
+        const backup = localStorage.getItem(KEY);
+        try {
+          LOOT.store.purge();
+          const rng = makeRng(7);
+          const opening = openBox(rng, { rarity: 'trash' });
+          LOOT.store.recordOpening(opening);
+          const fresh = LOOT.achievements.check(LOOT.store, { event: 'open', opening });
+          assert('first box unlocks "Box One"', fresh.some((d) => d.id === 'first_box'));
+
+          for (let i = 0; i < 4; i++) LOOT.store.recordOpening(openBox(rng, { rarity: 'trash' }));
+          const streak = LOOT.achievements.check(LOOT.store, { event: 'open', opening });
+          assert('5-trash streak unlocks "The System Is Not Sorry"',
+            streak.some((d) => d.id === 'trash_streak_5'));
+          assert('achievements do not re-unlock',
+            LOOT.achievements.check(LOOT.store, { event: 'open', opening }).length === 0);
+        } finally {
+          if (backup === null) localStorage.removeItem(KEY);
+          else localStorage.setItem(KEY, backup);
+          LOOT.store.reload();
+        }
+      }
+
+      // ── 8. Content table sanity ────────────────────────────────────────
+      {
+        let rows = 0;
+        rows += T.BASE_ITEMS.length + T.JUNK_OBJECTS.length + T.WONDROUS_OBJECTS.length;
+        rows += T.PREFIXES.length + T.SUFFIXES.length + T.MATERIALS.length;
+        rows += T.TRASH_DECORATIONS.pre.length + T.TRASH_DECORATIONS.post.length;
+        rows += T.LEGENDARY_NAMES.length + T.LEGENDARY_EPITHETS.length + T.CURSED_TWISTS.length;
+        rows += T.FLAVOR_FRAMES.length + T.PLACES.length;
+        rows += Object.values(T.SYSTEM_LINES).reduce((n, a) => n + a.length, 0);
+        assert(`content tables hold 200+ entries (found ${rows})`, rows >= 200);
+        assert('every rarity has System lines',
+          T.RARITIES.every((r) => (T.SYSTEM_LINES[r.id] || []).length > 0));
+      }
+
+      const summary = document.getElementById('summary');
+      summary.textContent = failed === 0
+        ? `ALL ${passed} ASSERTIONS PASS. The System is displeased but cannot argue with math.`
+        : `${failed} FAILED, ${passed} passed. The System saw this coming.`;
+      summary.className = failed === 0 ? 'test-pass' : 'test-fail';
+    })();
+  </script>
+</body>
+</html>

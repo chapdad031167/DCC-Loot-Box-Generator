@@ -14,9 +14,30 @@
   <header class="terminal-bar">
     <div class="terminal-head">
       <h1>LOOT CRAWL</h1>
-      <button id="sound-toggle" type="button" class="sound-toggle" aria-pressed="false">SOUND: OFF</button>
+      <div class="head-buttons">
+        <button id="sound-toggle" type="button" class="sound-toggle" aria-pressed="false">SOUND: OFF</button>
+        <button id="ai-toggle" type="button" class="sound-toggle" aria-expanded="false" aria-controls="ai-panel">AI: OFF</button>
+      </div>
     </div>
     <p class="tagline">// DUNGEON PROVISIONS INTERFACE v2.0 — The System dispenses. You cope.</p>
+
+    <section id="ai-panel" class="ai-panel" hidden aria-labelledby="ai-panel-title">
+      <h2 id="ai-panel-title">AI ANNOUNCER MODE</h2>
+      <p class="ai-note">
+        Paste your own Anthropic API key to have The System write a unique
+        announcement for every box, live. <strong>Your key stays in this
+        page's memory only</strong> &mdash; it is never saved to localStorage or
+        cookies, and never sent anywhere except <code>api.anthropic.com</code>.
+        Reload the page and it is forgotten.
+      </p>
+      <div class="ai-controls">
+        <label for="api-key" class="visually-hidden">Anthropic API key</label>
+        <input id="api-key" type="password" autocomplete="off" spellcheck="false"
+               placeholder="sk-ant-..." />
+        <button id="ai-enable" type="button">ENABLE</button>
+      </div>
+      <p id="ai-status" class="ai-status" aria-live="polite"></p>
+    </section>
   </header>
 
   <main>
@@ -61,6 +82,7 @@
   <script src="js/store.js"></script>
   <script src="js/achievements.js"></script>
   <script src="js/sound.js"></script>
+  <script src="js/announcer.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/main.js"></script>
 </body>

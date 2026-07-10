@@ -91,17 +91,18 @@
     return `Value: ${value} gold (before the merchant sees you coming)`;
   }
 
-  // Legendary proper names shouldn't repeat back-to-back in a session;
-  // cycle through the pool before reusing any.
-  let usedLegendaryNames = new Set();
+  // Legendary proper names shouldn't repeat back-to-back in a session; cycle
+  // through the pool before reusing any. The memory lives on the rng instance
+  // so identical seeds still produce identical sequences (reproducibility).
   function pickLegendaryName(rng) {
-    let pool = LEGENDARY_NAMES.filter((n) => !usedLegendaryNames.has(n));
+    const used = (rng.usedLegendaryNames ??= new Set());
+    let pool = LEGENDARY_NAMES.filter((n) => !used.has(n));
     if (pool.length === 0) {
-      usedLegendaryNames = new Set();
+      used.clear();
       pool = LEGENDARY_NAMES;
     }
     const name = rng.pick(pool);
-    usedLegendaryNames.add(name);
+    used.add(name);
     return name;
   }
 
