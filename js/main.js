@@ -9,6 +9,7 @@
   const store = globalThis.LOOT.store;
   const achievements = globalThis.LOOT.achievements;
   const sound = globalThis.LOOT.sound;
+  const voice = globalThis.LOOT.voice;
   const announcer = globalThis.LOOT.announcer;
 
   const params = new URLSearchParams(window.location.search);
@@ -142,6 +143,30 @@
   if (store.getSetting('sound')) sound.setEnabled(true);
   paintSoundBtn();
 
+  // ── Voice toggle (Web Speech API; OFF by default) ─────────────────────
+  const voiceBtn = document.getElementById('voice-toggle');
+
+  function paintVoiceBtn() {
+    voiceBtn.textContent = voice.enabled ? 'VOICE: ON' : 'VOICE: OFF';
+    voiceBtn.setAttribute('aria-pressed', String(voice.enabled));
+  }
+
+  if (!voice.supported) {
+    voiceBtn.hidden = true;
+  } else {
+    voiceBtn.addEventListener('click', () => {
+      voice.setEnabled(!voice.enabled);
+      store.setSetting('voice', voice.enabled);
+      paintVoiceBtn();
+      if (voice.enabled) {
+        voice.speak('Voice mode enabled. I hope you know what you have done.');
+        toastAll(achievements.check(store, { event: 'voice' }));
+      }
+    });
+    if (store.getSetting('voice')) voice.setEnabled(true);
+    paintVoiceBtn();
+  }
+
   // ── AI announcer mode (off by default; key lives in memory only) ─────
   const aiToggle = document.getElementById('ai-toggle');
   const aiPanel = document.getElementById('ai-panel');
@@ -179,8 +204,12 @@
 
   // After a reveal, swap the static snark for a live line when it arrives.
   // On any API failure, keep the static line and add the "offline snark" badge.
+  // Voice mode speaks whichever line ends up on the card.
   function announceItem(item) {
-    if (!announcer.enabled) return;
+    if (!announcer.enabled) {
+      voice.speak(item.systemLine);
+      return;
+    }
     const lineEl = stage.querySelector('.system-line');
     if (!lineEl) return;
     announcer.announce(itemToText(item)).then((result) => {
@@ -188,8 +217,10 @@
       if (result.status === 'ok') {
         lineEl.textContent = `“${result.text}”`;
         lineEl.classList.add('ai-line');
+        voice.speak(result.text);
       } else if (result.status === 'error') {
         lineEl.classList.add('offline');
+        voice.speak(item.systemLine);
       }
     });
   }
