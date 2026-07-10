@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LOOT CRAWL — a parody loot box generator</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1>LOOT CRAWL</h1>
+    <p class="tagline">The System dispenses. You cope.</p>
+  </header>
+
+  <main>
+    <div class="controls">
+      <button id="open-box" type="button">OPEN BOX</button>
+      <button id="sample-batch" type="button" class="dev">dev: 20 samples</button>
+    </div>
+    <p id="boxes-opened" aria-live="polite">Boxes opened: 0</p>
+    <section id="reveal" aria-live="polite"></section>
+  </main>
+
+  <footer>
+    <p>A fan-made parody generator inspired by the LitRPG genre. Not affiliated with any book series.</p>
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
