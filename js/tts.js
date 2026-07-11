@@ -16,7 +16,7 @@
   // voices must be added to your account's "My Voices" before the API will
   // accept them; if this one isn't in yours, paste any voice ID into the
   // settings panel's voice-ID field to override.
-  const DEFAULT_VOICE_ID = 'fBD19tfE58bkETeiwUoC';
+  const DEFAULT_VOICE_ID = 'CeNX9CMwmxDxUF5Q2Inm';
   const MODEL_ID = 'eleven_multilingual_v2';
   const TIMEOUT_MS = 15000;
 
