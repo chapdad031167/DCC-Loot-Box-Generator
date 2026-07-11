@@ -352,6 +352,17 @@ button.dev {
 
 .ai-status { margin: 0.6rem 0 0; color: var(--dim); font-size: 0.85rem; }
 
+.ai-subhead {
+  margin: 1.1rem 0 0.5rem;
+  padding-top: 0.9rem;
+  border-top: 1px dashed var(--accent-dark);
+  font-size: 0.9rem;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+}
+.ai-note a { color: var(--accent); }
+#tts-voice-id { flex: 0 1 12rem; min-width: 10rem; }
+
 .visually-hidden {
   position: absolute;
   width: 1px; height: 1px;
