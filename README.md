@@ -172,6 +172,25 @@ falling back to the flat legacy ones. A slightly synthetic deadpan is
 considered in character. The toggle hides itself on browsers without speech
 support, and the preference persists.
 
+### Cloud voice (optional upgrade, off by default)
+
+For a genuinely *acted* voice, the settings panel (the **AI** button) has a
+**Cloud Voice** section: paste an [ElevenLabs](https://elevenlabs.io) API key
+and The System's lines are synthesized by ElevenLabs instead of the browser.
+The rarity still drives the emotion — the mood maps to ElevenLabs voice
+settings, so legendary comes out theatrical and cursed comes out unstable in
+the way that was intended. A voice ID field lets you pick any voice from your
+Voice Lab; leave it blank for the default.
+
+Key policy, same as the AI announcer: the key lives in a JavaScript variable
+**in memory only** — never localStorage, never cookies, never sent anywhere
+except `api.elevenlabs.io`, forgotten on reload. On any cloud failure (bad
+key, quota, network) the browser voice takes over silently.
+
+Cost note: ElevenLabs bills per character (the free tier includes ~10k
+characters/month). System lines are short, but a truly deranged number of
+boxes adds up. The System accepts no liability. The System never has.
+
 ## Deploying to GitHub Pages
 
 1. Push this repository to GitHub

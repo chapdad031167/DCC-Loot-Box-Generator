@@ -38,6 +38,27 @@
         <button id="ai-enable" type="button">ENABLE</button>
       </div>
       <p id="ai-status" class="ai-status" aria-live="polite"></p>
+
+      <h2 class="ai-subhead">CLOUD VOICE (ELEVENLABS)</h2>
+      <p class="ai-note">
+        Optional upgrade for voice mode: paste an
+        <a href="https://elevenlabs.io" rel="noopener">ElevenLabs</a> API key
+        and The System speaks with a genuinely acted voice instead of the
+        browser's built-in one. Same key policy: <strong>memory only</strong>,
+        never saved, never sent anywhere except <code>api.elevenlabs.io</code>.
+        If the cloud voice fails for any reason, the browser voice takes over
+        silently.
+      </p>
+      <div class="ai-controls">
+        <label for="tts-key" class="visually-hidden">ElevenLabs API key</label>
+        <input id="tts-key" type="password" autocomplete="off" spellcheck="false"
+               placeholder="ElevenLabs API key" />
+        <label for="tts-voice-id" class="visually-hidden">ElevenLabs voice ID (optional)</label>
+        <input id="tts-voice-id" type="text" autocomplete="off" spellcheck="false"
+               placeholder="voice ID (optional)" />
+        <button id="tts-enable" type="button">ENABLE</button>
+      </div>
+      <p id="tts-status" class="ai-status" aria-live="polite"></p>
     </section>
   </header>
 
@@ -83,6 +104,7 @@
   <script src="js/store.js"></script>
   <script src="js/achievements.js"></script>
   <script src="js/sound.js"></script>
+  <script src="js/tts.js"></script>
   <script src="js/voice.js"></script>
   <script src="js/announcer.js"></script>
   <script src="js/ui.js"></script>

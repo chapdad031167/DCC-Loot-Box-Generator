@@ -123,12 +123,27 @@
 
   // speak(text, mood): mood is a rarity id ('trash'…'cursed'); defaults to
   // 'common'. A new speak interrupts any performance already underway.
+  // When cloud TTS (LOOT.tts) is enabled, the line goes there first; on any
+  // cloud failure it falls back to the local Web Speech performance.
   function speak(text, mood = 'common') {
-    if (!enabled || !supported || !text) return;
+    if (!enabled || !text) return;
     try {
       session += 1; // The System does not talk over itself. It interrupts itself.
-      window.speechSynthesis.cancel();
-      performPlan(buildPlan(text, mood), session);
+      if (supported) window.speechSynthesis.cancel();
+
+      const tts = globalThis.LOOT?.tts;
+      if (tts?.enabled) {
+        tts.stop();
+        const mySession = session;
+        tts.play(String(text), mood).then((result) => {
+          if (result.status === 'error' && mySession === session && supported) {
+            performPlan(buildPlan(text, mood), session);
+          }
+        });
+        return;
+      }
+
+      if (supported) performPlan(buildPlan(text, mood), session);
     } catch {
       // A speech engine tantrum must never break the loot. Silence is canon anyway.
     }
@@ -136,9 +151,10 @@
 
   function setEnabled(on) {
     enabled = Boolean(on) && supported;
-    if (!enabled && supported) {
+    if (!enabled) {
       session += 1;
-      window.speechSynthesis.cancel();
+      if (supported) window.speechSynthesis.cancel();
+      globalThis.LOOT?.tts?.stop();
     }
     return enabled;
   }

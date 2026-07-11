@@ -10,6 +10,7 @@
   const achievements = globalThis.LOOT.achievements;
   const sound = globalThis.LOOT.sound;
   const voice = globalThis.LOOT.voice;
+  const tts = globalThis.LOOT.tts;
   const announcer = globalThis.LOOT.announcer;
 
   const params = new URLSearchParams(window.location.search);
@@ -227,6 +228,38 @@
   }
 
   paintAiButtons();
+
+  // ── Cloud voice / ElevenLabs (off by default; key in memory only) ─────
+  const ttsKeyInput = document.getElementById('tts-key');
+  const ttsVoiceInput = document.getElementById('tts-voice-id');
+  const ttsEnable = document.getElementById('tts-enable');
+  const ttsStatus = document.getElementById('tts-status');
+
+  ttsEnable.addEventListener('click', () => {
+    if (tts.enabled) {
+      tts.configure({ key: null, on: false });
+      ttsKeyInput.value = '';
+      ttsEnable.textContent = 'ENABLE';
+      ttsStatus.textContent = 'Cloud voice off. Key forgotten. The browser voice resumes its duties, uninsulted.';
+      return;
+    }
+    const key = ttsKeyInput.value.trim();
+    if (!key) {
+      ttsStatus.textContent = 'No key, no golden throat. Paste an ElevenLabs API key first.';
+      return;
+    }
+    tts.configure({ key, voice: ttsVoiceInput.value, on: true });
+    ttsEnable.textContent = 'DISABLE';
+    // Cloud voice is pointless with voice mode off — switch it on too.
+    if (!voice.enabled && voice.supported) {
+      voice.setEnabled(true);
+      store.setSetting('voice', true);
+      paintVoiceBtn();
+      toastAll(achievements.check(store, { event: 'voice' }));
+    }
+    ttsStatus.textContent = 'Cloud voice on. The System has hired professional vocal cords. It is billing you for them.';
+    voice.speak('Cloud voice enabled. Yes. This is what I actually sound like.', 'legendary');
+  });
 
   // ── Dev helper (?dev=1): batch sample view ────────────────────────────
   const sampleBtn = document.getElementById('sample-batch');
