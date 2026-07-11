@@ -128,6 +128,12 @@ each box, the app calls the Anthropic Messages API (`claude-sonnet-4-6`,
 `max_tokens: 200`) with the generated item as context, and The System writes a
 unique 1–3 sentence announcement live.
 
+**Content rating note:** unlike the built-in snark lines (which stay PG-13),
+the AI announcer is prompted to be crude and profane — R-rated insult comedy
+aimed at the player and their loot. Hard limits are baked into the prompt: no
+slurs, no hate speech, no explicit sexual content. If you'd rather have the
+tamer register, edit `SYSTEM_PROMPT` in `js/announcer.js`.
+
 **How your key is handled — the whole policy:**
 
 - The key is stored in a JavaScript variable **in memory only**
