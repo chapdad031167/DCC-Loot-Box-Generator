@@ -12,9 +12,11 @@
 // Classic script namespaced under LOOT so the app runs from file://.
 (() => {
   const API_BASE = 'https://api.elevenlabs.io/v1/text-to-speech/';
-  // "George" — a warm, wry stock voice from ElevenLabs' premade set.
-  // Users can paste any voice ID from their own Voice Lab instead.
-  const DEFAULT_VOICE_ID = 'JBFqnCBsd6RMkjVDRZzb';
+  // The System's chosen voice, from the ElevenLabs voice library. Library
+  // voices must be added to your account's "My Voices" before the API will
+  // accept them; if this one isn't in yours, paste any voice ID into the
+  // settings panel's voice-ID field to override.
+  const DEFAULT_VOICE_ID = 'fBD19tfE58bkETeiwUoC';
   const MODEL_ID = 'eleven_multilingual_v2';
   const TIMEOUT_MS = 15000;
 
