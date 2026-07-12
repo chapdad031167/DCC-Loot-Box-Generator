@@ -10,7 +10,7 @@ darkly amused game-show host — hands you something like:
 > *"Found in a goblin timeshare, which explains a lot."*
 > SYSTEM> "Congratulations! Do read the fine print. Oh, there is none. The fine print reads you."
 
-**Live demo:** _[add your GitHub Pages link here]_
+**Live demo:** https://chapdad031167.github.io/DCC-Loot-Box-Generator/
 
 **Screenshot:** _[add a screenshot here]_
 
