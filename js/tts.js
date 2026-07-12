@@ -12,11 +12,12 @@
 // Classic script namespaced under LOOT so the app runs from file://.
 (() => {
   const API_BASE = 'https://api.elevenlabs.io/v1/text-to-speech/';
-  // The System's chosen voice, from the ElevenLabs voice library. Library
-  // voices must be added to your account's "My Voices" before the API will
-  // accept them; if this one isn't in yours, paste any voice ID into the
-  // settings panel's voice-ID field to override.
-  const DEFAULT_VOICE_ID = 'CeNX9CMwmxDxUF5Q2Inm';
+  // The System's chosen voice: "Callum", an ElevenLabs premade default voice
+  // (gravelly, with an unsettling edge). Premade defaults work on the free
+  // tier via the API — unlike shared Voice Library voices, which return HTTP
+  // 402 for free accounts. To use any other voice, paste its ID into the
+  // settings panel's voice-ID field to override this default.
+  const DEFAULT_VOICE_ID = 'N2lVS1w4EtoT3dr4eOWO';
   const MODEL_ID = 'eleven_multilingual_v2';
   const TIMEOUT_MS = 15000;
 
