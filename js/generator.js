@@ -233,6 +233,23 @@
     ].join('\n');
   }
 
+  // A spoken version of the item for voice mode: reads the item out loud —
+  // rarity + name, each stat, then the flavor blurb. Kept punctuation-clean so
+  // the voice engine phrases it (unlike itemToText, which has UI markup like
+  // [RARITY] and bullet stars). The System's line is appended by the caller so
+  // it lands as the final punchline sentence.
+  function itemToSpeech(item) {
+    const asSentence = (s) => {
+      const t = String(s).trim();
+      return /[.!?…]$/.test(t) ? t : `${t}.`;
+    };
+    return [
+      asSentence(`${item.rarity.name}: ${item.name}`),
+      ...item.stats.map(asSentence),
+      asSentence(item.flavor),
+    ].join(' ');
+  }
+
   const LOOT = globalThis.LOOT;
-  LOOT.generator = { pickBoxTier, pickRarity, generateItem, openBox, itemToText };
+  LOOT.generator = { pickBoxTier, pickRarity, generateItem, openBox, itemToText, itemToSpeech };
 })();
