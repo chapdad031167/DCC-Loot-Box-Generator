@@ -20,6 +20,9 @@
   const DEFAULT_VOICE_ID = 'N2lVS1w4EtoT3dr4eOWO';
   const MODEL_ID = 'eleven_multilingual_v2';
   const TIMEOUT_MS = 15000;
+  // Playback pace. ElevenLabs voice_settings.speed accepts 0.7–1.2 comfortably
+  // (>1 = faster). The System talks a touch quick — it has a lot of boxes to get through.
+  const SPEED = 1.2;
 
   // stability: lower = more emotional variation; style: higher = more acted.
   const MOOD_SETTINGS = {
@@ -87,6 +90,7 @@
             ...(MOOD_SETTINGS[mood] ?? MOOD_SETTINGS.common),
             similarity_boost: 0.75,
             use_speaker_boost: true,
+            speed: SPEED,
           },
         }),
       });

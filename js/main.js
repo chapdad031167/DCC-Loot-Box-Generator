@@ -4,7 +4,7 @@
 // Classic script (loaded last) so the app runs from file://.
 (() => {
   const { makeRng, seedFromQuery } = globalThis.LOOT.rng;
-  const { openBox, itemToText } = globalThis.LOOT.generator;
+  const { openBox, itemToText, itemToSpeech } = globalThis.LOOT.generator;
   const { playReveal, renderOpening, renderItemCard, renderCollection, toastAll } = globalThis.LOOT.ui;
   const store = globalThis.LOOT.store;
   const achievements = globalThis.LOOT.achievements;
@@ -206,10 +206,14 @@
   // After a reveal, swap the static snark for a live line when it arrives.
   // On any API failure, keep the static line and add the "offline snark" badge.
   // Voice mode speaks whichever line ends up on the card.
+  // Voice reads the whole box aloud — item, stats, blurb — then the closing
+  // line (the AI's when it arrives, otherwise the built-in snark), so the
+  // System's quip lands as the final beat.
   function announceItem(item) {
     const mood = item.rarity.id; // the delivery reacts to the loot
+    const readout = itemToSpeech(item);
     if (!announcer.enabled) {
-      voice.speak(item.systemLine, mood);
+      voice.speak(`${readout} ${item.systemLine}`, mood);
       return;
     }
     const lineEl = stage.querySelector('.system-line');
@@ -219,10 +223,10 @@
       if (result.status === 'ok') {
         lineEl.textContent = `“${result.text}”`;
         lineEl.classList.add('ai-line');
-        voice.speak(result.text, mood);
+        voice.speak(`${readout} ${result.text}`, mood);
       } else if (result.status === 'error') {
         lineEl.classList.add('offline');
-        voice.speak(item.systemLine, mood);
+        voice.speak(`${readout} ${item.systemLine}`, mood);
       }
     });
   }
