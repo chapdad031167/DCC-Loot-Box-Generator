@@ -235,6 +235,12 @@
   const ttsEnable = document.getElementById('tts-enable');
   const ttsStatus = document.getElementById('tts-status');
 
+  // Cloud voice fails silently by design (it falls back to the browser voice),
+  // which hides setup problems. When it does fall back, show why in the panel.
+  document.addEventListener('loot:tts-error', (e) => {
+    if (tts.enabled) ttsStatus.textContent = e.detail.message;
+  });
+
   ttsEnable.addEventListener('click', () => {
     if (tts.enabled) {
       tts.configure({ key: null, on: false });

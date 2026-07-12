@@ -36,6 +36,19 @@
   let enabled = false;
   let currentAudio = null;
   let ticket = 0;      // bumping this abandons any fetch/playback in flight
+  let lastError = '';  // human-readable reason the last cloud call fell back
+
+  // The fallback to the browser voice is silent by design, which makes setup
+  // failures (bad key, voice not in "My Voices", CORS) invisible. Surface the
+  // reason so the settings panel can show it; production still degrades quietly.
+  function reportError(msg) {
+    lastError = msg;
+    try {
+      globalThis.document?.dispatchEvent(
+        new CustomEvent('loot:tts-error', { detail: { message: msg } }),
+      );
+    } catch { /* no DOM (node/test) — lastError still holds it */ }
+  }
 
   function configure({ key, voice, on }) {
     if (key !== undefined) apiKey = key ? String(key).trim() : null;
@@ -76,7 +89,19 @@
           },
         }),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        // ElevenLabs errors carry a JSON body: { detail: "..." } or
+        // { detail: { status, message } }. Pull the human-readable bit out.
+        let why = `HTTP ${res.status}`;
+        try {
+          const body = await res.json();
+          const d = body?.detail;
+          const msg = typeof d === 'string' ? d : (d?.message || d?.status);
+          if (msg) why = `${why} — ${msg}`;
+        } catch { /* body wasn't JSON; the status code stands alone */ }
+        reportError(`Cloud voice failed (${why}). Using the browser voice instead.`);
+        return { status: 'error' };
+      }
       const blob = await res.blob();
       if (myTicket !== ticket) return { status: 'skipped' }; // superseded meanwhile
 
@@ -90,8 +115,13 @@
       audio.addEventListener('ended', cleanup);
       audio.addEventListener('error', cleanup);
       await audio.play();
+      lastError = '';
       return { status: 'ok' };
-    } catch {
+    } catch (e) {
+      const why = e?.name === 'TimeoutError'
+        ? 'request timed out'
+        : 'network or CORS error (check the key and your connection)';
+      reportError(`Cloud voice failed (${why}). Using the browser voice instead.`);
       return { status: 'error' };
     }
   }
@@ -102,5 +132,6 @@
     DEFAULT_VOICE_ID,
     get enabled() { return enabled; },
     get hasKey() { return Boolean(apiKey); },
+    get lastError() { return lastError; },
   };
 })();
