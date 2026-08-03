@@ -2,7 +2,7 @@
 // Pure logic against store state; the toast rendering lives in ui.js.
 // Classic script namespaced under LOOT so the app runs from file://.
 (() => {
-  // ctx: { event: 'open' | 'share' | 'sound', opening? }
+  // ctx: { event: 'open' | 'share' | 'sound' | 'voice', opening?, mercy? }
   const DEFINITIONS = [
     {
       id: 'first_box',
@@ -84,6 +84,12 @@
       title: 'You Chose This',
       desc: 'You turned the sound on. Your consent has been recorded and notarized.',
       test: (s, ctx) => ctx.event === 'sound',
+    },
+    {
+      id: 'mercy_engaged',
+      title: 'Mandated Minimum Joy',
+      desc: 'The Mercy Protocol engaged on your behalf. The System complied under protest and filed the paperwork as a grievance.',
+      test: (s, ctx) => ctx.event === 'open' && ctx.mercy === true,
     },
     {
       id: 'voice_on',

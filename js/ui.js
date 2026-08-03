@@ -40,7 +40,9 @@
       });
       card.append(btn);
     }
-    return card;
+    // Holographic tilt (fx.js) wraps the card on pointer-fine devices; the
+    // wrapper is transparent to focus, events, and .item-card selectors.
+    return globalThis.LOOT.fx?.wrapTilt(card) ?? card;
   }
 
   function renderBanner(boxTier) {
@@ -81,6 +83,16 @@
     box.classList.add('rumble');
     await wait(900);
     box.classList.add('burst');
+    // The payoff: particles + (for legendary/cursed) a screen flash, timed
+    // to the crate detonation. Decorative — fx no-ops under reduced motion.
+    const rect = box.getBoundingClientRect();
+    globalThis.LOOT.fx?.burst({
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+      rarity: opening.item.rarity.id,
+      tier: opening.boxTier.id,
+    });
+    globalThis.LOOT.fx?.flash(opening.item.rarity.id);
     await wait(330);
 
     stage.replaceChildren(renderOpening(opening));

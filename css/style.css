@@ -301,8 +301,74 @@ button.dev {
   96% { filter: invert(0.9) hue-rotate(140deg); transform: translateX(0); }
 }
 
+/* ── Reveal FX (fx.js) ──────────────────────────────────────────────── */
+.fx-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 12;
+  pointer-events: none;
+}
+
+.screen-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 14;
+  pointer-events: none;
+  background: var(--flash, #fff);
+  animation: flash-fade 0.55s ease-out both;
+}
+
+@keyframes flash-fade {
+  from { opacity: 0.45; }
+  to { opacity: 0; }
+}
+
+/* A cursed drop is felt in the furniture. */
+body.cursed-quake { animation: cursed-quake 0.5s linear; }
+
+@keyframes cursed-quake {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-5px, 3px); }
+  40% { transform: translate(4px, -4px); }
+  60% { transform: translate(-6px, -2px); }
+  80% { transform: translate(5px, 3px); }
+}
+
+/* Holographic tilt: the wrapper takes the pointer-driven transform so the
+   card keeps its own entry/shimmer animations. */
+.tilt-wrap {
+  transform: perspective(950px) rotateX(var(--tx, 0deg)) rotateY(var(--ty, 0deg));
+  transition: transform 0.15s ease-out;
+  will-change: transform;
+}
+
+.glare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: var(--glow, 0);
+  background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%),
+    rgba(255, 255, 255, 0.16), transparent 55%);
+  mix-blend-mode: screen;
+  transition: opacity 0.25s;
+}
+
+/* ── Mercy Protocol meter ───────────────────────────────────────────── */
+.mercy {
+  margin: 0.4rem 0 0;
+  color: var(--dim);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+}
+
+.mercy.engaged {
+  color: var(--c-legendary);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--c-legendary) 60%, transparent);
+  animation: ai-line-in 0.6s ease-out;
+}
+
 /* ── Header controls ────────────────────────────────────────────────── */
-.terminal-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.terminal-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
 
 .sound-toggle {
   font: inherit;
@@ -498,6 +564,63 @@ button.dev {
 }
 .purge:hover, .purge:focus-visible { opacity: 1; background: var(--c-cursed); color: #02120a; }
 
+/* ── System report ──────────────────────────────────────────────────── */
+.report-zone {
+  margin-top: 1.5rem;
+  border: 1px solid var(--accent-dark);
+  background: rgba(11, 18, 11, 0.6);
+  padding: 1rem;
+}
+
+.report-zone h2 { margin: 0 0 0.9rem; color: var(--accent); font-size: 1.05rem; letter-spacing: 0.2em; }
+
+.report-grid { display: flex; flex-direction: column; gap: 0.45rem; }
+
+.report-row {
+  --rc: var(--c-common);
+  display: grid;
+  grid-template-columns: 6.5rem 1fr minmax(11rem, auto);
+  align-items: center;
+  gap: 0.7rem;
+  font-size: 0.85rem;
+}
+
+.report-label { color: var(--rc); letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.75rem; }
+
+.report-bar {
+  position: relative;
+  height: 0.8rem;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid color-mix(in srgb, var(--rc) 35%, transparent);
+  overflow: hidden;
+}
+
+.report-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: color-mix(in srgb, var(--rc) 70%, transparent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--rc) 50%, transparent);
+  transition: width 0.5s ease-out;
+}
+
+/* Tick mark: where the odds say the bar SHOULD reach. */
+.report-exp {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  background: var(--fg);
+  opacity: 0.85;
+}
+
+.report-nums { color: var(--dim); white-space: nowrap; }
+.report-expnum { opacity: 0.7; font-size: 0.78rem; }
+
+.report-verdict { margin: 1rem 0 0; color: var(--accent); font-size: 0.9rem; }
+.report-verdict::before { content: 'SYSTEM> '; color: var(--accent-dark); font-weight: bold; }
+
+.report-facts { margin: 0.4rem 0 0; color: var(--dim); font-size: 0.85rem; }
+
 /* ── Footer ─────────────────────────────────────────────────────────── */
 footer {
   margin-top: 3rem;
@@ -518,4 +641,6 @@ footer {
   h1 { font-size: 1.25rem; letter-spacing: 0.2em; }
   #open-box { width: 100%; font-size: 1.15rem; }
   .item-card { padding: 0.9rem 0.9rem 1rem; }
+  .report-row { grid-template-columns: 5rem 1fr; }
+  .report-nums { grid-column: 2; }
 }
