@@ -41,7 +41,10 @@ darkly amused game-show host — hands you something like:
 - **Collection log** — everything found in this browser, rarity filters,
   click-to-inspect, persisted in localStorage
 - **Share** — one click copies a formatted text block of any item
-- **Sound** — optional WebAudio-generated fanfares (no audio files), off by default
+- **Sound** — optional synthesized sound design (no audio files): the crate
+  growls while it rumbles and detonates with a boom, then each rarity gets
+  its own fanfare — layered brass with echo for legendary, a heartbeat drone
+  for cursed, an audible floor-thud for trash. Off by default
 - **Voice** — optional; The System reads its commentary aloud via the
   browser-built-in Web Speech API (no keys, no assets, off by default,
   tuned low and slow for maximum bored omniscience)
@@ -148,10 +151,16 @@ tamer register, edit `SYSTEM_PROMPT` in `js/announcer.js`.
 
 **How your key is handled — the whole policy:**
 
-- The key is stored in a JavaScript variable **in memory only**
-- It is **never** written to localStorage, sessionStorage, or cookies
+- By default the key is stored in a JavaScript variable **in memory only** —
+  never written to localStorage, sessionStorage, or cookies — and reloading
+  the page forgets it
 - It is **never** sent anywhere except `https://api.anthropic.com`
-- Reloading the page forgets it
+- **Optional:** tick *Remember keys on this device* in the settings panel to
+  persist your keys in this browser's localStorage so AI and cloud voice
+  restore themselves after a reload. That's a convenience trade-off: anyone
+  with access to the browser profile could read a remembered key, so only
+  use it on a device you trust. Untick the box (or disable the mode) to
+  forget the key again
 
 Safety and robustness:
 
@@ -200,10 +209,11 @@ settings, so legendary comes out theatrical and cursed comes out unstable in
 the way that was intended. A voice ID field lets you pick any voice from your
 Voice Lab; leave it blank for the default.
 
-Key policy, same as the AI announcer: the key lives in a JavaScript variable
-**in memory only** — never localStorage, never cookies, never sent anywhere
-except `api.elevenlabs.io`, forgotten on reload. On any cloud failure (bad
-key, quota, network) the browser voice takes over silently.
+Key policy, same as the AI announcer: memory-only by default (forgotten on
+reload), never sent anywhere except `api.elevenlabs.io`, and persisted to
+localStorage only if you opt into *Remember keys on this device*. On any
+cloud failure (bad key, quota, network) the browser voice takes over, and
+the panel shows why.
 
 Cost note: ElevenLabs bills per character (the free tier includes ~10k
 characters/month). System lines are short, but a truly deranged number of

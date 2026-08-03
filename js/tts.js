@@ -1,9 +1,10 @@
 // tts.js — optional cloud voice (ElevenLabs). OFF by default.
 //
 // SECURITY MODEL: same policy as the AI announcer key. The user's ElevenLabs
-// API key lives in a closure variable in this file only. It is NEVER written
-// to localStorage, sessionStorage, or cookies, and NEVER sent anywhere except
-// https://api.elevenlabs.io. Reloading the page forgets it.
+// API key lives in a closure variable in this file and is NEVER sent anywhere
+// except https://api.elevenlabs.io. This module never touches storage; the
+// key is memory-only unless the user opts into "Remember keys on this
+// device" (persisted by main.js, trade-off spelled out in the panel).
 //
 // The mood (rarity) maps to ElevenLabs voice_settings: lower stability and
 // higher style = more expressive, acted delivery. On any failure the caller

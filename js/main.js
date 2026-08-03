@@ -229,6 +229,7 @@
     if (announcer.enabled) {
       announcer.configure({ key: null, on: false });
       apiKeyInput.value = '';
+      dropKeys('anthropic');
       aiStatus.textContent = 'AI announcer off. Key forgotten. The System reverts to its greatest hits.';
     } else {
       const key = apiKeyInput.value.trim();
@@ -237,6 +238,7 @@
         return;
       }
       announcer.configure({ key, on: true });
+      saveKeys({ anthropic: key });
       aiStatus.textContent = 'AI announcer on. The System is now improvising. It was always improvising; now it is billing you for it.';
     }
     paintAiButtons();
@@ -289,6 +291,7 @@
       tts.configure({ key: null, on: false });
       ttsKeyInput.value = '';
       ttsEnable.textContent = 'ENABLE';
+      dropKeys('eleven', 'voiceId');
       ttsStatus.textContent = 'Cloud voice off. Key forgotten. The browser voice resumes its duties, uninsulted.';
       return;
     }
@@ -298,6 +301,7 @@
       return;
     }
     tts.configure({ key, voice: ttsVoiceInput.value, on: true });
+    saveKeys({ eleven: key, voiceId: ttsVoiceInput.value.trim() || null });
     ttsEnable.textContent = 'DISABLE';
     // Cloud voice is pointless with voice mode off — switch it on too.
     if (!voice.enabled && voice.supported) {
@@ -309,6 +313,66 @@
     ttsStatus.textContent = 'Cloud voice on. The System has hired professional vocal cords. It is billing you for them.';
     voice.speak('Cloud voice enabled. Yes. This is what I actually sound like.', 'legendary');
   });
+
+  // ── Remember keys (opt-in; default stays memory-only) ─────────────────
+  // With the checkbox ticked, API keys persist in localStorage (via the
+  // store's settings) and AI / cloud voice restore themselves on load. This
+  // is a deliberate, opt-in trade of security for convenience: the panel
+  // says exactly who can read a remembered key. Disabling a mode, or
+  // unticking the box, forgets.
+  const rememberEl = document.getElementById('remember-keys');
+
+  function saveKeys(patch) {
+    if (!rememberEl.checked) return;
+    const next = { ...(store.getSetting('keys') || {}), ...patch };
+    for (const k of Object.keys(next)) if (next[k] == null) delete next[k];
+    store.setSetting('keys', Object.keys(next).length ? next : null);
+  }
+
+  function dropKeys(...names) {
+    const next = { ...(store.getSetting('keys') || {}) };
+    for (const n of names) delete next[n];
+    store.setSetting('keys', Object.keys(next).length ? next : null);
+  }
+
+  rememberEl.addEventListener('change', () => {
+    if (!rememberEl.checked) {
+      store.setSetting('keys', null);
+      return;
+    }
+    // Persist whatever is currently enabled, straight from the inputs.
+    if (announcer.enabled && apiKeyInput.value.trim()) {
+      saveKeys({ anthropic: apiKeyInput.value.trim() });
+    }
+    if (tts.enabled && ttsKeyInput.value.trim()) {
+      saveKeys({ eleven: ttsKeyInput.value.trim(), voiceId: ttsVoiceInput.value.trim() || null });
+    }
+  });
+
+  // Restore on load: quiet — no greeting line, no achievement replays.
+  (function restoreKeys() {
+    const saved = store.getSetting('keys');
+    if (!saved) return;
+    rememberEl.checked = true;
+    if (saved.anthropic) {
+      apiKeyInput.value = saved.anthropic;
+      announcer.configure({ key: saved.anthropic, on: true });
+      aiStatus.textContent = 'AI announcer restored from this device. The System never forgot. It was told not to.';
+      paintAiButtons();
+    }
+    if (saved.eleven) {
+      ttsKeyInput.value = saved.eleven;
+      if (saved.voiceId) ttsVoiceInput.value = saved.voiceId;
+      tts.configure({ key: saved.eleven, voice: saved.voiceId, on: true });
+      ttsEnable.textContent = 'DISABLE';
+      ttsStatus.textContent = 'Cloud voice restored from this device. The professional vocal cords kept the retainer.';
+      if (!voice.enabled && voice.supported) {
+        voice.setEnabled(true);
+        store.setSetting('voice', true);
+        paintVoiceBtn();
+      }
+    }
+  })();
 
   // ── Dev helper (?dev=1): batch sample view ────────────────────────────
   const sampleBtn = document.getElementById('sample-batch');
