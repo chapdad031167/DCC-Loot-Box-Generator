@@ -29,6 +29,8 @@
       rarityCounts: {},
       boxTierCounts: {},
       trashStreak: 0,
+      maxTrashStreak: 0,
+      subRareStreak: 0, // consecutive drops below rare; feeds the Mercy Protocol
       sharesUsed: 0,
       unlocked: [],
       settings: {},
@@ -64,6 +66,8 @@
     state.rarityCounts[item.rarity.id] = (state.rarityCounts[item.rarity.id] || 0) + 1;
     state.boxTierCounts[boxTier.id] = (state.boxTierCounts[boxTier.id] || 0) + 1;
     state.trashStreak = item.rarity.id === 'trash' ? state.trashStreak + 1 : 0;
+    state.maxTrashStreak = Math.max(state.maxTrashStreak || 0, state.trashStreak);
+    state.subRareStreak = (item.rarity.tier ?? 0) >= 3 ? 0 : (state.subRareStreak || 0) + 1;
     state.items.unshift({ item, boxTier, ts: ts ?? Date.now() });
     if (state.items.length > MAX_ITEMS) state.items.length = MAX_ITEMS;
     save();

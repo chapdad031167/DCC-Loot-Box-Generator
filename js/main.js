@@ -8,6 +8,7 @@
   const { playReveal, renderOpening, renderItemCard, renderCollection, toastAll } = globalThis.LOOT.ui;
   const store = globalThis.LOOT.store;
   const achievements = globalThis.LOOT.achievements;
+  const report = globalThis.LOOT.report;
   const sound = globalThis.LOOT.sound;
   const voice = globalThis.LOOT.voice;
   const tts = globalThis.LOOT.tts;
@@ -36,6 +37,32 @@
     counterEl.textContent = `Boxes opened: ${store.state.boxesOpened}`;
   }
 
+  function refreshReport() {
+    report.render(document.getElementById('report'), store.state);
+  }
+
+  // ── Mercy Protocol ────────────────────────────────────────────────────
+  // The pity system real loot boxes hide, made loudly visible. After
+  // MERCY_AT consecutive sub-rare drops, the next box is guaranteed rare or
+  // better — dispensed under protest. URL-forced rarity (?rarity=) wins.
+  const MERCY_AT = 10;
+  const mercyEl = document.getElementById('mercy');
+
+  function paintMercy(engaged) {
+    const streak = store.state.subRareStreak || 0;
+    mercyEl.classList.toggle('engaged', Boolean(engaged));
+    if (engaged) {
+      mercyEl.hidden = false;
+      mercyEl.textContent = 'MERCY PROTOCOL ENGAGED — minimum joy dispensed under protest.';
+    } else if (streak >= 3) {
+      mercyEl.hidden = false;
+      mercyEl.textContent =
+        `MERCY PROTOCOL: ${streak}/${MERCY_AT}${streak >= 7 ? ' — dissatisfaction has been logged' : ''}`;
+    } else {
+      mercyEl.hidden = true;
+    }
+  }
+
   function refreshCollection() {
     renderCollection(collectionEl, store.state.items, filter);
     const kept = store.state.items.length;
@@ -51,13 +78,23 @@
     revealing = true;
     openBtn.disabled = true;
     try {
-      const opening = openBox(rng, forced);
+      let mercy = false;
+      const roll = { ...forced };
+      if (!forced.rarity && (store.state.subRareStreak || 0) >= MERCY_AT) {
+        mercy = true;
+        roll.rarity = rng.weighted([
+          { id: 'rare', weight: 70 }, { id: 'epic', weight: 25 }, { id: 'legendary', weight: 5 },
+        ]).id;
+      }
+      const opening = openBox(rng, roll);
       await playReveal(stage, opening);
       sound.playFor(opening.item.rarity.id);
       store.recordOpening(opening);
       refreshCounter();
       refreshCollection();
-      toastAll(achievements.check(store, { event: 'open', opening }));
+      refreshReport();
+      paintMercy(mercy);
+      toastAll(achievements.check(store, { event: 'open', opening, mercy }));
       announceItem(opening.item);
     } finally {
       revealing = false;
@@ -122,6 +159,8 @@
     store.purge();
     refreshCounter();
     refreshCollection();
+    refreshReport();
+    paintMercy(false);
     stage.replaceChildren();
   });
 
@@ -282,4 +321,6 @@
 
   refreshCounter();
   refreshCollection();
+  refreshReport();
+  paintMercy(false); // streak persists across sessions; show where it stands
 })();

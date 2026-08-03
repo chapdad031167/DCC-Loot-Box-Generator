@@ -4,7 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="LOOT CRAWL — a satirical dungeon-crawler loot box generator. The System dispenses. You cope.">
+  <meta name="theme-color" content="#060a06">
+  <meta property="og:title" content="LOOT CRAWL — a parody loot box generator">
+  <meta property="og:description" content="The System dispenses. You cope. A satirical dungeon-crawler loot box generator.">
+  <meta property="og:type" content="website">
   <title>LOOT CRAWL — a parody loot box generator</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -66,6 +71,7 @@
     <section class="box-zone">
       <button id="open-box" type="button" aria-describedby="boxes-opened">OPEN BOX</button>
       <p id="boxes-opened" class="counter" aria-live="polite">Boxes opened: 0</p>
+      <p id="mercy" class="mercy" aria-live="polite" hidden></p>
       <button id="sample-batch" type="button" class="dev" hidden>dev: 20 samples</button>
     </section>
 
@@ -89,6 +95,11 @@
       <div id="collection"></div>
       <button id="purge-log" type="button" class="purge">[ PURGE LOG ]</button>
     </section>
+
+    <section class="report-zone" aria-labelledby="report-title">
+      <h2 id="report-title">SYSTEM REPORT</h2>
+      <div id="report"></div>
+    </section>
   </main>
 
   <footer>
@@ -107,6 +118,8 @@
   <script src="js/tts.js"></script>
   <script src="js/voice.js"></script>
   <script src="js/announcer.js"></script>
+  <script src="js/fx.js"></script>
+  <script src="js/report.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/main.js"></script>
 </body>

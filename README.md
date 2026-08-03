@@ -24,6 +24,18 @@ darkly amused game-show host — hands you something like:
 - **Random objects** — low tiers cough up absurd junk (A Jar of Sighs, A Rock
   That Looks a Little Like a Face); high tiers occasionally drop wondrous
   objects that are genuinely powerful and quietly unsettling
+- **Reveal spectacle** — the crate detonates into rarity-colored particles;
+  legendary adds a golden screen flash, cursed flashes red and shakes the
+  whole page, celestial goes full rainbow. Revealed cards tilt in 3D under
+  the pointer with a holographic glare. All of it stands down under
+  `prefers-reduced-motion`
+- **Mercy Protocol** — the pity system real loot boxes hide, made loudly
+  visible: a meter fills as you pull sub-rare junk, and at 10 The System is
+  legally obligated to dispense a rare-or-better. Under protest
+- **System Report** — a luck dashboard: your actual pull rates per rarity
+  charted against the mathematically expected odds (the tick mark is what
+  the house owes you), a computed luck rating with escalating verdicts, your
+  longest trash streak, and your rarest acquisition
 - **Achievements** — toast popups for milestones, including *The System Is Not
   Sorry* (5 trash in a row) and *Seek Help. Or Another Box.* (100 boxes)
 - **Collection log** — everything found in this browser, rarity filters,
