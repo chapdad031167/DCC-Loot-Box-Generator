@@ -204,9 +204,14 @@ support, and the preference persists.
 For a genuinely *acted* voice, the settings panel (the **AI** button) has a
 **Cloud Voice** section: paste an [ElevenLabs](https://elevenlabs.io) API key
 and The System's lines are synthesized by ElevenLabs instead of the browser.
-The rarity still drives the emotion — the mood maps to ElevenLabs voice
-settings, so legendary comes out theatrical and cursed comes out unstable in
-the way that was intended. A voice ID field lets you pick any voice from your
+Lines are rendered on the expressive **Eleven v3** model, and the rarity
+drives the performance twice over: it maps to voice settings (stability /
+style) *and* injects v3 audio tags into the text — legendary opens
+`[thrilled][dramatic]` and lands its punchline with a `[laughs]`, cursed
+goes `[ominous]` and *whispers* the final line, trash gets the
+`[disappointed][sighs]` it deserves. If v3 isn't available on your account,
+the same line automatically retries as a plain read on
+`eleven_multilingual_v2`. A voice ID field lets you pick any voice from your
 Voice Lab; leave it blank for the default.
 
 Key policy, same as the AI announcer: memory-only by default (forgotten on
