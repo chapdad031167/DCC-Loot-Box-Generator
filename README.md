@@ -221,8 +221,12 @@ cloud failure (bad key, quota, network) the browser voice takes over, and
 the panel shows why.
 
 Cost note: ElevenLabs bills per character (the free tier includes ~10k
-characters/month). System lines are short, but a truly deranged number of
-boxes adds up. The System accepts no liability. The System never has.
+characters/month), and the full item readout costs several times more per
+box than a single line — a heavy session can drain a free month in a few
+dozen boxes. Two tools in the panel help: a live **credits meter** shows
+your month's usage after every request, and a **Punchline only** checkbox
+makes the cloud voice speak just The System's line (the browser voice is
+free either way). The System accepts no liability. The System never has.
 
 ## Deploying to GitHub Pages
 
