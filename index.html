@@ -32,8 +32,8 @@
       <p class="ai-note">
         Paste your own Anthropic API key to have The System write a unique
         announcement for every box, live. <strong>Your key stays in this
-        page's memory only</strong> &mdash; it is never saved to localStorage or
-        cookies, and never sent anywhere except <code>api.anthropic.com</code>.
+        page's memory only</strong> (unless you tick &ldquo;Remember keys&rdquo;
+        below) and is never sent anywhere except <code>api.anthropic.com</code>.
         Reload the page and it is forgotten.
       </p>
       <div class="ai-controls">
@@ -49,10 +49,10 @@
         Optional upgrade for voice mode: paste an
         <a href="https://elevenlabs.io" rel="noopener">ElevenLabs</a> API key
         and The System speaks with a genuinely acted voice instead of the
-        browser's built-in one. Same key policy: <strong>memory only</strong>,
-        never saved, never sent anywhere except <code>api.elevenlabs.io</code>.
-        If the cloud voice fails for any reason, the browser voice takes over
-        silently.
+        browser's built-in one. Same key policy: <strong>memory only</strong>
+        unless remembered below, and never sent anywhere except
+        <code>api.elevenlabs.io</code>. If the cloud voice fails for any
+        reason, the browser voice takes over silently.
       </p>
       <div class="ai-controls">
         <label for="tts-key" class="visually-hidden">ElevenLabs API key</label>
@@ -64,6 +64,15 @@
         <button id="tts-enable" type="button">ENABLE</button>
       </div>
       <p id="tts-status" class="ai-status" aria-live="polite"></p>
+
+      <label class="remember-row">
+        <input type="checkbox" id="remember-keys">
+        <span>Remember keys on this device &mdash; stores them in this
+        browser's localStorage so AI and cloud voice come back on by
+        themselves after a reload. Only tick this on a device you trust:
+        anyone with access to this browser profile could read them.
+        Untick (or disable a mode) to forget.</span>
+      </label>
     </section>
   </header>
 

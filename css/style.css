@@ -429,6 +429,26 @@ body.cursed-quake { animation: cursed-quake 0.5s linear; }
 .ai-note a { color: var(--accent); }
 #tts-voice-id { flex: 0 1 12rem; min-width: 10rem; }
 
+.remember-row {
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-start;
+  margin: 1rem 0 0;
+  padding-top: 0.9rem;
+  border-top: 1px dashed var(--accent-dark);
+  color: var(--dim);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.remember-row input {
+  margin-top: 0.2rem;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.remember-row input:focus-visible { outline: 2px dashed var(--accent); outline-offset: 2px; }
+
 .visually-hidden {
   position: absolute;
   width: 1px; height: 1px;

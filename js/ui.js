@@ -81,8 +81,10 @@
 
     await wait(450);
     box.classList.add('rumble');
+    globalThis.LOOT.sound?.playRumble();
     await wait(900);
     box.classList.add('burst');
+    globalThis.LOOT.sound?.playBurst();
     // The payoff: particles + (for legendary/cursed) a screen flash, timed
     // to the crate detonation. Decorative — fx no-ops under reduced motion.
     const rect = box.getBoundingClientRect();

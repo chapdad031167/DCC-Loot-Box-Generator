@@ -1,9 +1,11 @@
 // announcer.js — optional AI announcer mode (off by default).
 //
 // SECURITY MODEL: the user's Anthropic API key lives in a closure variable in
-// this file only. It is NEVER written to localStorage, sessionStorage, or
-// cookies, and NEVER sent anywhere except https://api.anthropic.com. Reloading
-// the page forgets it. The settings panel says exactly this to the user.
+// this file and is NEVER sent anywhere except https://api.anthropic.com.
+// This module never touches storage. By default the key is memory-only and a
+// reload forgets it; main.js persists it to localStorage ONLY when the user
+// opts in via the "Remember keys on this device" checkbox, whose label
+// spells out the trade-off.
 //
 // Classic script namespaced under LOOT so the app runs from file://.
 (() => {
