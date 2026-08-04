@@ -16,7 +16,8 @@
 //
 // Classic script namespaced under LOOT so the app runs from file://.
 (() => {
-  const API_BASE = 'https://api.elevenlabs.io/v1/text-to-speech/';
+  const API_ROOT = 'https://api.elevenlabs.io';
+  const API_BASE = `${API_ROOT}/v1/text-to-speech/`;
   // The System's chosen voice: "Callum", an ElevenLabs premade default voice
   // (gravelly, with an unsettling edge). Premade defaults work on the free
   // tier via the API — unlike shared Voice Library voices, which return HTTP
@@ -85,7 +86,32 @@
     if (voice !== undefined) voiceId = String(voice || '').trim() || DEFAULT_VOICE_ID;
     if (on !== undefined) enabled = Boolean(on) && Boolean(apiKey);
     if (!enabled) stop();
+    else usage(); // fire-and-forget: paint the credits meter on enable
     return enabled;
+  }
+
+  // Quota visibility: ElevenLabs bills per character, and running dry looks
+  // identical to any other failure (robot-voice fallback). Fetch the account's
+  // character usage and broadcast it so the panel can show a live meter.
+  // Best-effort only — failures are silent and change nothing.
+  async function usage() {
+    if (!apiKey) return null;
+    try {
+      const res = await fetch(`${API_ROOT}/v1/user/subscription`, {
+        headers: { 'xi-api-key': apiKey },
+        signal: AbortSignal.timeout(8000),
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (typeof data.character_count !== 'number' || typeof data.character_limit !== 'number') return null;
+      const info = { used: data.character_count, limit: data.character_limit };
+      try {
+        globalThis.document?.dispatchEvent(new CustomEvent('loot:tts-usage', { detail: info }));
+      } catch { /* no DOM */ }
+      return info;
+    } catch {
+      return null;
+    }
   }
 
   function stop() {
@@ -147,8 +173,10 @@
       }
       if (!result.ok) {
         reportError(`Cloud voice failed (${result.why}). Using the browser voice instead.`);
+        usage(); // refresh the meter — quota exhaustion is the usual culprit
         return { status: 'error' };
       }
+      usage(); // keep the credits meter current after each spend
       if (myTicket !== ticket) return { status: 'skipped' }; // superseded meanwhile
 
       const url = URL.createObjectURL(result.blob);
@@ -174,7 +202,7 @@
 
   const LOOT = (globalThis.LOOT ??= {});
   LOOT.tts = {
-    configure, play, stop,
+    configure, play, stop, usage,
     DEFAULT_VOICE_ID,
     get enabled() { return enabled; },
     get hasKey() { return Boolean(apiKey); },

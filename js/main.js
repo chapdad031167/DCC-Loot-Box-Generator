@@ -249,12 +249,15 @@
   // Voice mode speaks whichever line ends up on the card.
   // Voice reads the whole box aloud — item, stats, blurb — then the closing
   // line (the AI's when it arrives, otherwise the built-in snark), so the
-  // System's quip lands as the final beat.
+  // System's quip lands as the final beat. Exception: with cloud voice on
+  // and "punchline only" ticked, the readout is skipped — ElevenLabs bills
+  // per character and the full readout is the expensive part.
   function announceItem(item) {
     const mood = item.rarity.id; // the delivery reacts to the loot
-    const readout = itemToSpeech(item);
+    const quipOnly = tts.enabled && Boolean(store.getSetting('ttsQuipOnly'));
+    const readout = quipOnly ? '' : `${itemToSpeech(item)} `;
     if (!announcer.enabled) {
-      voice.speak(`${readout} ${item.systemLine}`, mood);
+      voice.speak(`${readout}${item.systemLine}`, mood);
       return;
     }
     const lineEl = stage.querySelector('.system-line');
@@ -264,10 +267,10 @@
       if (result.status === 'ok') {
         lineEl.textContent = `“${result.text}”`;
         lineEl.classList.add('ai-line');
-        voice.speak(`${readout} ${result.text}`, mood);
+        voice.speak(`${readout}${result.text}`, mood);
       } else if (result.status === 'error') {
         lineEl.classList.add('offline');
-        voice.speak(`${readout} ${item.systemLine}`, mood);
+        voice.speak(`${readout}${item.systemLine}`, mood);
       }
     });
   }
@@ -284,6 +287,24 @@
   // which hides setup problems. When it does fall back, show why in the panel.
   document.addEventListener('loot:tts-error', (e) => {
     if (tts.enabled) ttsStatus.textContent = e.detail.message;
+  });
+
+  // Punchline-only mode: skip the item readout on the cloud voice to save
+  // ElevenLabs credits. Not a secret — safe to persist as a plain setting.
+  const ttsQuip = document.getElementById('tts-quip');
+  ttsQuip.checked = Boolean(store.getSetting('ttsQuipOnly'));
+  ttsQuip.addEventListener('change', () => {
+    store.setSetting('ttsQuipOnly', ttsQuip.checked);
+  });
+
+  // Live credits meter, fed by tts.js after enables and each spend.
+  const ttsUsage = document.getElementById('tts-usage');
+  document.addEventListener('loot:tts-usage', (e) => {
+    const { used, limit } = e.detail;
+    const left = Math.max(0, limit - used);
+    ttsUsage.textContent =
+      `ElevenLabs credits: ${used.toLocaleString()} / ${limit.toLocaleString()} used this month`
+      + (left < 1000 ? ' — running low; punchline-only mode stretches what is left' : '');
   });
 
   ttsEnable.addEventListener('click', () => {
