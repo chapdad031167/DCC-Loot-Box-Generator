@@ -388,6 +388,28 @@
     if (localtts.enabled) auditionVoice(); // hear the pick immediately
   });
 
+  // Pace: voices differ in natural speed, so the listener sets it. Auditions
+  // on release (not on every drag tick) so scrubbing doesn't queue up reads.
+  const localSpeed = document.getElementById('local-speed');
+  const localSpeedOut = document.getElementById('local-speed-out');
+
+  function paintSpeed() {
+    localSpeedOut.textContent = `${Number(localSpeed.value).toFixed(2)}×`;
+  }
+
+  localSpeed.value = String(store.getSetting('localSpeed') ?? localtts.DEFAULT_SPEED);
+  localtts.setSpeed(localSpeed.value);
+  paintSpeed();
+
+  localSpeed.addEventListener('input', () => {
+    localtts.setSpeed(localSpeed.value);
+    paintSpeed();
+  });
+  localSpeed.addEventListener('change', () => {
+    store.setSetting('localSpeed', Number(localSpeed.value));
+    if (localtts.enabled) auditionVoice();
+  });
+
   localAudition.addEventListener('click', () => {
     if (!localtts.enabled) {
       localStatus.textContent = 'Enable the neural voice first — then it will read for you.';
