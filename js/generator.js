@@ -244,7 +244,11 @@
       return /[.!?…]$/.test(t) ? t : `${t}.`;
     };
     return [
-      asSentence(`${item.rarity.name}: ${item.name}`),
+      // Rarity stands alone so the performance engines put a real beat
+      // between the verdict and the name. Joined into one sentence, every
+      // engine runs them together and the reveal lands flat.
+      asSentence(item.rarity.name),
+      asSentence(item.name),
       ...item.stats.map(asSentence),
       asSentence(item.flavor),
     ].join(' ');

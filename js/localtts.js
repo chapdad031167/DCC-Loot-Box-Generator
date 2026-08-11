@@ -73,6 +73,14 @@
     cursed:    { speed: 0.82, rate: 0.94, drift: -0.01,  wobble: 0.02, pause: 420, punchPause: 680, punchSpeed: -0.08, punchRate: -0.04 },
   };
 
+  // Voices differ a lot in natural pace (Emma reads noticeably slower than
+  // Fenrir), and the per-mood numbers above are only a shape — this scales
+  // the whole performance so the listener sets the actual tempo. Pauses
+  // shrink as speed rises, or a brisk read still feels padded.
+  const SPEED_RANGE = [0.8, 1.6];
+  const DEFAULT_SPEED = 1.15;
+  let speedScale = DEFAULT_SPEED;
+
   const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -86,12 +94,14 @@
     return sentences.map((sentence, i) => {
       const isPunch = i === sentences.length - 1 && sentences.length > 1;
       const wobble = mood.wobble ? (i % 2 === 0 ? mood.wobble : -mood.wobble) : 0;
+      const base = mood.speed + mood.drift * i + (isPunch ? mood.punchSpeed : 0);
       return {
         text: sentence,
-        speed: clamp(mood.speed + mood.drift * i + (isPunch ? mood.punchSpeed : 0), 0.5, 1.5),
+        speed: clamp(base * speedScale, 0.5, 2),
         rate: clamp(mood.rate + wobble + (isPunch ? mood.punchRate : 0), 0.85, 1.15),
-        // Silence held BEFORE this clip. Comic timing lives here.
-        prePause: i === 0 ? 0 : (isPunch ? mood.punchPause : mood.pause),
+        // Silence held BEFORE this clip. Comic timing lives here, and it
+        // tightens with speed so a fast read doesn't sit in dead air.
+        prePause: i === 0 ? 0 : Math.round((isPunch ? mood.punchPause : mood.pause) / speedScale),
       };
     });
   }
@@ -268,11 +278,18 @@
     return voiceId;
   }
 
+  function setSpeed(value) {
+    const n = Number(value);
+    speedScale = Number.isFinite(n) ? clamp(n, SPEED_RANGE[0], SPEED_RANGE[1]) : DEFAULT_SPEED;
+    return speedScale;
+  }
+
   const LOOT = (globalThis.LOOT ??= {});
   LOOT.localtts = {
-    configure, play, stop, setVoice,
-    DEFAULT_VOICE, VOICES,
+    configure, play, stop, setVoice, setSpeed,
+    DEFAULT_VOICE, VOICES, DEFAULT_SPEED, SPEED_RANGE,
     get voice() { return voiceId; },
+    get speed() { return speedScale; },
     get enabled() { return enabled; },
     get ready() { return Boolean(engine); },
     get lastError() { return loadError; },

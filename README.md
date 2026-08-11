@@ -223,6 +223,11 @@ and labelled with the model card's quality grade, with an **AUDITION**
 button; the choice persists. Default is `am_fenrir` — one of the
 best-graded male voices, and the name fits the job.
 
+Voices differ a lot in natural pace, so a **PACE** slider (0.8×–1.6×,
+default 1.15×) scales the whole performance; pauses tighten as it rises so a
+brisk read never sits in dead air. Moving it auditions the new pace, and the
+setting persists.
+
 The first enable downloads ~90 MB of model weights, with a progress readout in
 the panel; your browser caches them, so every later session is instant and
 works offline. It uses WebGPU when available and falls back to WebAssembly.

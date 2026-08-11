@@ -433,6 +433,19 @@ body.cursed-quake { animation: cursed-quake 0.5s linear; }
 .ai-controls button:disabled { opacity: 0.5; cursor: not-allowed; }
 .ai-controls optgroup { background: var(--panel); color: var(--dim); }
 
+.speed-row {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: 0.6rem;
+  color: var(--dim);
+  font-size: 0.85rem;
+}
+.speed-row label { letter-spacing: 0.15em; text-transform: uppercase; font-size: 0.75rem; }
+.speed-row input[type="range"] { flex: 1; accent-color: var(--accent); cursor: pointer; min-width: 8rem; }
+.speed-row input[type="range"]:focus-visible { outline: 2px dashed var(--accent); outline-offset: 3px; }
+.speed-row output { color: var(--accent); min-width: 3.2rem; text-align: right; }
+
 .ai-subhead {
   margin: 1.1rem 0 0.5rem;
   padding-top: 0.9rem;
