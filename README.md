@@ -45,9 +45,10 @@ darkly amused game-show host — hands you something like:
   growls while it rumbles and detonates with a boom, then each rarity gets
   its own fanfare — layered brass with echo for legendary, a heartbeat drone
   for cursed, an audible floor-thud for trash. Off by default
-- **Voice** — optional; The System reads its commentary aloud via the
-  browser-built-in Web Speech API (no keys, no assets, off by default,
-  tuned low and slow for maximum bored omniscience)
+- **Voice** — optional; The System reads the whole box aloud, off by default.
+  Three engines, best first: a **free neural voice** (Kokoro-82M, running
+  locally in your browser — no key, no quota), an optional ElevenLabs cloud
+  voice, and the browser's built-in Web Speech as the always-there fallback
 - **AI announcer mode** — optional; bring your own Anthropic API key and The
   System improvises a unique announcement for every box — with voice mode on,
   it speaks the AI line too
@@ -199,6 +200,26 @@ falling back to the flat legacy ones. A slightly synthetic deadpan is
 considered in character. The toggle hides itself on browsers without speech
 support, and the preference persists.
 
+### Neural voice — free, in your browser (off by default)
+
+The best-sounding option that costs nothing. In the settings panel (the **AI**
+button), **NEURAL VOICE** runs
+[Kokoro-82M](https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX) —
+an open-weight (Apache-licensed) neural TTS — **entirely inside your browser**
+via [kokoro-js](https://www.npmjs.com/package/kokoro-js). No API key, no
+account, no quota, no per-character billing, and your text never leaves the
+machine. The rarity drives the pace: legendary speeds up, cursed drags.
+
+The first enable downloads ~90 MB of model weights, with a progress readout in
+the panel; your browser caches them, so every later session is instant and
+works offline. It uses WebGPU when available and falls back to WebAssembly.
+
+This is the only part of the app with a third-party dependency, and it is
+strictly opt-in: the library is loaded by a dynamic `import()` that fires
+**only** when you enable it. Leave it off and nothing is fetched and nothing
+changes. Because module imports need a real origin, this feature requires the
+hosted page — it can't work from a `file://` copy, and says so if you try.
+
 ### Cloud voice (optional upgrade, off by default)
 
 For a genuinely *acted* voice, the settings panel (the **AI** button) has a
@@ -216,9 +237,12 @@ Voice Lab; leave it blank for the default.
 
 Key policy, same as the AI announcer: memory-only by default (forgotten on
 reload), never sent anywhere except `api.elevenlabs.io`, and persisted to
-localStorage only if you opt into *Remember keys on this device*. On any
-cloud failure (bad key, quota, network) the browser voice takes over, and
-the panel shows why.
+localStorage only if you opt into *Remember keys on this device*.
+
+**Engines fall through, best first:** cloud voice → free neural voice →
+browser voice. So if the cloud fails for any reason (bad key, exhausted
+quota, no network) and the neural voice is on, it picks up the line instead
+of dropping to the robot — and the panel shows why the cloud bailed.
 
 Cost note: ElevenLabs bills per character (the free tier includes ~10k
 characters/month), and the full item readout costs several times more per

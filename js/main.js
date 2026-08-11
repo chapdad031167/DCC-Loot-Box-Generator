@@ -12,6 +12,7 @@
   const sound = globalThis.LOOT.sound;
   const voice = globalThis.LOOT.voice;
   const tts = globalThis.LOOT.tts;
+  const localtts = globalThis.LOOT.localtts;
   const announcer = globalThis.LOOT.announcer;
 
   const params = new URLSearchParams(window.location.search);
@@ -334,6 +335,64 @@
     ttsStatus.textContent = 'Cloud voice on. The System has hired professional vocal cords. It is billing you for them.';
     voice.speak('Cloud voice enabled. Yes. This is what I actually sound like.', 'legendary');
   });
+
+  // ── Local neural voice (Kokoro, free, no key) ─────────────────────────
+  // Opt-in because the first enable pulls ~90MB of model weights. Once on,
+  // the preference persists and the model reloads from browser cache.
+  const localEnable = document.getElementById('local-enable');
+  const localStatus = document.getElementById('local-status');
+
+  const LOCAL_STATUS = {
+    loading: 'Waking the neural voice. The System is being compiled into something that can shout.',
+    ready: 'Neural voice ready — free, local, and unlimited. Nothing leaves this machine. Nothing is billed.',
+    speaking: 'Neural voice speaking…',
+  };
+
+  function paintLocalBtn() {
+    localEnable.textContent = localtts.enabled ? 'DISABLE' : 'ENABLE';
+  }
+
+  document.addEventListener('loot:localtts-status', (e) => {
+    if (!localtts.enabled) return;
+    const { stage, percent, message } = e.detail;
+    if (stage === 'downloading') {
+      localStatus.textContent =
+        `Downloading the voice… ${Math.round(percent)}% (one time only — your browser keeps it)`;
+    } else if (stage === 'error') {
+      localStatus.textContent = `Neural voice unavailable (${message}). Falling back to the browser voice.`;
+    } else if (LOCAL_STATUS[stage]) {
+      localStatus.textContent = LOCAL_STATUS[stage];
+    }
+  });
+
+  localEnable.addEventListener('click', () => {
+    if (localtts.enabled) {
+      localtts.configure({ on: false });
+      store.setSetting('localVoice', false);
+      paintLocalBtn();
+      localStatus.textContent = 'Neural voice off. The browser voice returns, as flat as you remember.';
+      return;
+    }
+    localtts.configure({ on: true });
+    store.setSetting('localVoice', true);
+    paintLocalBtn();
+    localStatus.textContent = LOCAL_STATUS.loading;
+    // Pointless with voice mode off — switch it on too.
+    if (!voice.enabled) {
+      voice.setEnabled(true);
+      store.setSetting('voice', true);
+      paintVoiceBtn();
+      toastAll(achievements.check(store, { event: 'voice' }));
+    }
+    voice.speak('Neural voice online. I am running inside your own machine now. Cozy.', 'epic');
+  });
+
+  if (store.getSetting('localVoice')) {
+    localtts.configure({ on: true });
+    paintLocalBtn();
+    localStatus.textContent = 'Neural voice restored — reloading it from your browser cache.';
+  }
+  paintLocalBtn();
 
   // ── Remember keys (opt-in; default stays memory-only) ─────────────────
   // With the checkbox ticked, API keys persist in localStorage (via the
