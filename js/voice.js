@@ -123,38 +123,60 @@
 
   // speak(text, mood): mood is a rarity id ('trash'…'cursed'); defaults to
   // 'common'. A new speak interrupts any performance already underway.
-  // When cloud TTS (LOOT.tts) is enabled, the line goes there first; on any
-  // cloud failure it falls back to the local Web Speech performance.
+  //
+  // Three engines, best first, each falling through to the next on failure:
+  //   1. cloud TTS (LOOT.tts) — ElevenLabs, best acting, costs credits
+  //   2. local neural (LOOT.localtts) — Kokoro in-browser, free and unlimited
+  //   3. Web Speech — always there, sounds like it
   function speak(text, mood = 'common') {
     if (!enabled || !text) return;
     try {
       session += 1; // The System does not talk over itself. It interrupts itself.
       if (supported) window.speechSynthesis.cancel();
 
+      const line = String(text);
+      const mySession = session;
       const tts = globalThis.LOOT?.tts;
+      const local = globalThis.LOOT?.localtts;
+
+      const webSpeech = () => {
+        if (mySession === session && supported) performPlan(buildPlan(text, mood), session);
+      };
+      const neural = () => {
+        if (mySession !== session) return;
+        if (!local?.enabled) return webSpeech();
+        local.stop();
+        local.play(line, mood).then((r) => {
+          if (r.status === 'error') webSpeech();
+        });
+      };
+
       if (tts?.enabled) {
         tts.stop();
-        const mySession = session;
-        tts.play(String(text), mood).then((result) => {
-          if (result.status === 'error' && mySession === session && supported) {
-            performPlan(buildPlan(text, mood), session);
-          }
+        tts.play(line, mood).then((result) => {
+          if (result.status === 'error') neural(); // cloud dry or broken → free neural
         });
         return;
       }
 
-      if (supported) performPlan(buildPlan(text, mood), session);
+      neural();
     } catch {
       // A speech engine tantrum must never break the loot. Silence is canon anyway.
     }
   }
 
   function setEnabled(on) {
-    enabled = Boolean(on) && supported;
+    // Voice mode is available if ANY engine can talk — the neural and cloud
+    // paths don't need Web Speech, they only fall back to it.
+    const anyEngine = supported
+      || Boolean(globalThis.LOOT?.localtts?.enabled)
+      || Boolean(globalThis.LOOT?.tts?.enabled);
+    enabled = Boolean(on) && anyEngine;
     if (!enabled) {
       session += 1;
       if (supported) window.speechSynthesis.cancel();
       globalThis.LOOT?.tts?.stop();
+      globalThis.LOOT?.localtts?.stop();
     }
     return enabled;
   }

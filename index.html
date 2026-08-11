@@ -44,6 +44,21 @@
       </div>
       <p id="ai-status" class="ai-status" aria-live="polite"></p>
 
+      <h2 class="ai-subhead">NEURAL VOICE &mdash; FREE, IN YOUR BROWSER</h2>
+      <p class="ai-note">
+        A real neural voice with <strong>no key, no account, and no
+        quota</strong>: the open-weight
+        <a href="https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX" rel="noopener">Kokoro</a>
+        model runs entirely on your machine, so nothing is sent anywhere and
+        nothing is ever billed. First use downloads about 90&nbsp;MB of model
+        weights (once &mdash; your browser caches them); after that it is
+        instant and works offline. Needs the hosted page, not a local file.
+      </p>
+      <div class="ai-controls">
+        <button id="local-enable" type="button">ENABLE</button>
+      </div>
+      <p id="local-status" class="ai-status" aria-live="polite"></p>
+
       <h2 class="ai-subhead">CLOUD VOICE (ELEVENLABS)</h2>
       <p class="ai-note">
         Optional upgrade for voice mode: paste an
@@ -52,7 +67,8 @@
         browser's built-in one. Same key policy: <strong>memory only</strong>
         unless remembered below, and never sent anywhere except
         <code>api.elevenlabs.io</code>. If the cloud voice fails for any
-        reason, the browser voice takes over silently.
+        reason (a spent quota included), the free neural voice above takes
+        over &mdash; or the browser voice, if that one is off too.
       </p>
       <div class="ai-controls">
         <label for="tts-key" class="visually-hidden">ElevenLabs API key</label>
@@ -133,6 +149,7 @@
   <script src="js/achievements.js"></script>
   <script src="js/sound.js"></script>
   <script src="js/tts.js"></script>
+  <script src="js/localtts.js"></script>
   <script src="js/voice.js"></script>
   <script src="js/announcer.js"></script>
   <script src="js/fx.js"></script>
