@@ -6,8 +6,25 @@
     BOX_TIERS, RARITIES, BASE_ITEMS, PREFIXES, SUFFIXES, MATERIALS,
     TRASH_DECORATIONS, LEGENDARY_NAMES, LEGENDARY_EPITHETS,
     CURSED_TWISTS, FLAVOR_FRAMES, PLACES, SYSTEM_LINES,
+    CRUDE_PREFIXES, CRUDE_SUFFIXES, CRUDE_MATERIALS,
+    CRUDE_LEGENDARY_EPITHETS, CRUDE_CURSED_TWISTS, CRUDE_PLACES,
+    CRUDE_SYSTEM_LINES,
     JUNK_OBJECTS, WONDROUS_OBJECTS,
   } = globalThis.LOOT.tables;
+
+
+  // The house register is crude. Each flavour pool comes in two halves — the
+  // filthy one and the drier originals — and this draws from the filthy half
+  // most of the time, so the tone is the rule rather than a lucky roll. The
+  // dry entries still surface often enough to keep the joke from flattening.
+  const CRUDE_BIAS = 0.75;
+  const CRUDE_BASE_ITEMS = BASE_ITEMS.filter((b) => b.crude);
+  const PLAIN_BASE_ITEMS = BASE_ITEMS.filter((b) => !b.crude);
+
+  function pickCrude(rng, crudePool, cleanPool) {
+    const useCrude = crudePool?.length && (!cleanPool?.length || rng.chance(CRUDE_BIAS));
+    return rng.pick(useCrude ? crudePool : cleanPool);
+  }
 
   // Every opening rolls a box tier first; the tier's own weights decide loot rarity.
   function pickBoxTier(rng, forcedId) {
@@ -112,35 +129,35 @@
 
     if (tier === 0) {
       name = rng.chance(0.6)
-        ? `${rng.pick(TRASH_DECORATIONS.pre)} ${base.name}`
-        : `${base.name} ${rng.pick(TRASH_DECORATIONS.post)}`;
+        ? `${pickCrude(rng, TRASH_DECORATIONS.crudePre, TRASH_DECORATIONS.pre)} ${base.name}`
+        : `${base.name} ${pickCrude(rng, TRASH_DECORATIONS.crudePost, TRASH_DECORATIONS.post)}`;
     } else if (tier === 1) {
-      parts.material = rng.chance(0.35) ? rng.pick(MATERIALS) : null;
+      parts.material = rng.chance(0.35) ? pickCrude(rng, CRUDE_MATERIALS, MATERIALS) : null;
       name = parts.material ? `${parts.material} ${base.name}` : base.name;
     } else if (tier === 2) {
       if (rng.chance(0.5)) {
-        parts.prefix = rng.pick(PREFIXES);
+        parts.prefix = pickCrude(rng, CRUDE_PREFIXES, PREFIXES);
         name = `${parts.prefix.text} ${base.name}`;
       } else {
-        parts.suffix = rng.pick(SUFFIXES);
+        parts.suffix = pickCrude(rng, CRUDE_SUFFIXES, SUFFIXES);
         name = `${base.name} ${parts.suffix.text}`;
       }
     } else if (tier === 3 || tier === 4) {
       // Cap names at three parts: prefix + base + suffix, with material
       // occasionally standing in for the prefix at epic.
       if (tier === 4 && rng.chance(0.35)) {
-        parts.material = rng.pick(MATERIALS);
-        parts.suffix = rng.pick(SUFFIXES);
+        parts.material = pickCrude(rng, CRUDE_MATERIALS, MATERIALS);
+        parts.suffix = pickCrude(rng, CRUDE_SUFFIXES, SUFFIXES);
         name = `${parts.material} ${base.name} ${parts.suffix.text}`;
       } else {
-        parts.prefix = rng.pick(PREFIXES);
-        parts.suffix = rng.pick(SUFFIXES);
+        parts.prefix = pickCrude(rng, CRUDE_PREFIXES, PREFIXES);
+        parts.suffix = pickCrude(rng, CRUDE_SUFFIXES, SUFFIXES);
         name = `${parts.prefix.text} ${base.name} ${parts.suffix.text}`;
       }
     } else {
       // Legendary & cursed: a proper name and an epithet.
       const proper = pickLegendaryName(rng);
-      const epithet = rng.pick(LEGENDARY_EPITHETS).replaceAll('{base}', base.name);
+      const epithet = pickCrude(rng, CRUDE_LEGENDARY_EPITHETS, LEGENDARY_EPITHETS).replaceAll('{base}', base.name);
       name = `${proper}, ${epithet}`;
     }
 
@@ -160,7 +177,7 @@
     const hook = rng.pick(base.flavorHooks);
     let flavor = rng.pick(FLAVOR_FRAMES)
       .replaceAll('{hook}', hook)
-      .replaceAll('{place}', rng.pick(PLACES));
+      .replaceAll('{place}', pickCrude(rng, CRUDE_PLACES, PLACES));
     const affixFlavor = parts.prefix?.flavor ?? parts.suffix?.flavor;
     if (affixFlavor && rng.chance(0.6)) flavor += ` ${affixFlavor}`;
     return flavor;
@@ -170,7 +187,7 @@
   // no core stat — just the object, exactly as unsettling as written.
   function generateObject(rng, rarity) {
     const pool = rarity.tier <= 1 ? JUNK_OBJECTS : WONDROUS_OBJECTS;
-    const obj = rng.pick(pool);
+    const obj = pickCrude(rng, pool.filter((o) => o.crude), pool.filter((o) => !o.crude));
     return {
       name: obj.name,
       base: obj.name,
@@ -178,7 +195,7 @@
       rarity: { id: rarity.id, name: rarity.name, tier: rarity.tier },
       stats: obj.stats.map((s) => fill(s, rng, rarity.tier)),
       flavor: obj.flavor,
-      systemLine: rng.pick(SYSTEM_LINES[rarity.id]),
+      systemLine: pickCrude(rng, CRUDE_SYSTEM_LINES[rarity.id], SYSTEM_LINES[rarity.id]),
     };
   }
 
@@ -192,12 +209,14 @@
     }
 
     const tier = rarity.tier;
-    const base = rng.pick(BASE_ITEMS);
+    // Same bias for the base item itself: the crude drawer comes up most
+    // of the time, so the noun is usually as tasteless as the adjectives.
+    const base = pickCrude(rng, CRUDE_BASE_ITEMS, PLAIN_BASE_ITEMS);
     const parts = buildName(rng, base, tier);
     const stats = buildStats(rng, base, tier, parts);
 
     if (rarity.id === 'cursed') {
-      stats.push(`Curse: ${rng.pick(CURSED_TWISTS)}`);
+      stats.push(`Curse: ${pickCrude(rng, CRUDE_CURSED_TWISTS, CURSED_TWISTS)}`);
     }
 
     return {
@@ -207,7 +226,7 @@
       rarity: { id: rarity.id, name: rarity.name, tier },
       stats,
       flavor: buildFlavor(rng, base, parts),
-      systemLine: rng.pick(SYSTEM_LINES[rarity.id]),
+      systemLine: pickCrude(rng, CRUDE_SYSTEM_LINES[rarity.id], SYSTEM_LINES[rarity.id]),
     };
   }
 
