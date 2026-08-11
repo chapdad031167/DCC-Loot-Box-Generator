@@ -418,6 +418,21 @@ body.cursed-quake { animation: cursed-quake 0.5s linear; }
 
 .ai-status { margin: 0.6rem 0 0; color: var(--dim); font-size: 0.85rem; }
 
+.ai-controls select {
+  font: inherit;
+  flex: 1 1 12rem;
+  min-width: 11rem;
+  padding: 0.45rem 0.5rem;
+  background: #050a05;
+  color: var(--fg);
+  border: 1px solid var(--accent-dark);
+  cursor: pointer;
+}
+.ai-controls select:focus-visible { outline: 2px dashed var(--accent); outline-offset: 2px; }
+.ai-controls select:disabled { opacity: 0.5; cursor: not-allowed; }
+.ai-controls button:disabled { opacity: 0.5; cursor: not-allowed; }
+.ai-controls optgroup { background: var(--panel); color: var(--dim); }
+
 .ai-subhead {
   margin: 1.1rem 0 0.5rem;
   padding-top: 0.9rem;

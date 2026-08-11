@@ -208,7 +208,20 @@ button), **NEURAL VOICE** runs
 an open-weight (Apache-licensed) neural TTS — **entirely inside your browser**
 via [kokoro-js](https://www.npmjs.com/package/kokoro-js). No API key, no
 account, no quota, no per-character billing, and your text never leaves the
-machine. The rarity drives the pace: legendary speeds up, cursed drags.
+machine.
+
+Like the browser voice, it **performs** rather than reads. One `generate()`
+call over a whole paragraph comes out flat, so each line is split into
+sentences and rendered as separate clips, then played back with real silence
+between them — per-sentence tempo (the model's own speaking rate), a pitch
+bend (playback rate with pitch preservation off), tempo drift across the
+line, a wobble for cursed, and a held beat before the punchline. Generation
+is pipelined against playback, so only the first sentence costs any wait.
+
+A **voice picker** lists all 28 Kokoro voices, grouped by gender and accent
+and labelled with the model card's quality grade, with an **AUDITION**
+button; the choice persists. Default is `am_fenrir` — one of the
+best-graded male voices, and the name fits the job.
 
 The first enable downloads ~90 MB of model weights, with a progress readout in
 the panel; your browser caches them, so every later session is instant and

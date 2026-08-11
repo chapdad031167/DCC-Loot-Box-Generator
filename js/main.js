@@ -341,6 +341,60 @@
   // the preference persists and the model reloads from browser cache.
   const localEnable = document.getElementById('local-enable');
   const localStatus = document.getElementById('local-status');
+  const localVoiceSel = document.getElementById('local-voice');
+  const localAudition = document.getElementById('local-audition');
+
+  // Voice picker: all 28 Kokoro voices, grouped, each labelled with the model
+  // card's grade so the good ones are obvious. Populated up front — no model
+  // download needed just to browse the list.
+  (function buildVoicePicker() {
+    const groups = [
+      ['Male — US', (v) => v.gender === 'M' && v.lang === 'US'],
+      ['Male — UK', (v) => v.gender === 'M' && v.lang === 'UK'],
+      ['Female — US', (v) => v.gender === 'F' && v.lang === 'US'],
+      ['Female — UK', (v) => v.gender === 'F' && v.lang === 'UK'],
+    ];
+    for (const [label, match] of groups) {
+      const og = document.createElement('optgroup');
+      og.label = label;
+      for (const v of localtts.VOICES.filter(match)) {
+        const opt = document.createElement('option');
+        opt.value = v.id;
+        opt.textContent = `${v.name} (${v.grade})`;
+        og.append(opt);
+      }
+      localVoiceSel.append(og);
+    }
+    const saved = store.getSetting('localVoiceId') || localtts.DEFAULT_VOICE;
+    localVoiceSel.value = saved;
+    localtts.setVoice(saved);
+  })();
+
+  const AUDITION_LINES = [
+    ['legendary', 'Legendary. The dungeon is showing off. Do not mistake this for affection.'],
+    ['cursed', 'Cursed. It has already started. You will notice around Tuesday.'],
+    ['trash', 'Trash. As expected. The System admires your consistency.'],
+  ];
+  let auditionIndex = 0;
+
+  function auditionVoice() {
+    const [mood, line] = AUDITION_LINES[auditionIndex++ % AUDITION_LINES.length];
+    voice.speak(line, mood);
+  }
+
+  localVoiceSel.addEventListener('change', () => {
+    localtts.setVoice(localVoiceSel.value);
+    store.setSetting('localVoiceId', localVoiceSel.value);
+    if (localtts.enabled) auditionVoice(); // hear the pick immediately
+  });
+
+  localAudition.addEventListener('click', () => {
+    if (!localtts.enabled) {
+      localStatus.textContent = 'Enable the neural voice first — then it will read for you.';
+      return;
+    }
+    auditionVoice();
+  });
 
   const LOCAL_STATUS = {
     loading: 'Waking the neural voice. The System is being compiled into something that can shout.',
