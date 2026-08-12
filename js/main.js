@@ -250,12 +250,12 @@
   // Voice mode speaks whichever line ends up on the card.
   // Voice reads the whole box aloud — item, stats, blurb — then the closing
   // line (the AI's when it arrives, otherwise the built-in snark), so the
-  // System's quip lands as the final beat. Exception: with cloud voice on
-  // and "punchline only" ticked, the readout is skipped — ElevenLabs bills
-  // per character and the full readout is the expensive part.
+  // System's quip lands as the final beat. With "punchline only" ticked the
+  // readout is skipped on every engine: it keeps the joke and drops the
+  // inventory recital (and on the cloud voice, the per-character bill).
   function announceItem(item) {
     const mood = item.rarity.id; // the delivery reacts to the loot
-    const quipOnly = tts.enabled && Boolean(store.getSetting('ttsQuipOnly'));
+    const quipOnly = Boolean(store.getSetting('ttsQuipOnly'));
     const readout = quipOnly ? '' : `${itemToSpeech(item)} `;
     if (!announcer.enabled) {
       voice.speak(`${readout}${item.systemLine}`, mood);

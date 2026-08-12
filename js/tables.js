@@ -46,6 +46,95 @@
   // Base items. Each carries its own bespoke jokes (statHooks / flavorHooks) so
   // generated items read as written-for-purpose, not madlibs.
   const BASE_ITEMS = [
+    // ── The crude drawer ───────────────────────────────────────────────────
+    {
+      name: 'Codpiece', type: 'armor', crude: true,
+      statHooks: [
+        'All of the coverage is concentrated in one heroic and frankly overstated region',
+        'Enemies must save or stare; staring enemies take {X} psychic damage from what they are staring at',
+      ],
+      flavorHooks: [
+        'Sized optimistically by its first owner and never resized by anyone since, out of respect or fear.',
+        'It announces you. It announces you from the next room. It has arrived at parties you declined.',
+      ],
+    },
+    {
+      name: 'Toe Ring', type: 'trinket', crude: true,
+      statHooks: [
+        '+{X} to charm, but only against people with a very particular interest',
+        'Cannot be removed while anyone nearby is barefoot; it wants to be seen',
+      ],
+      flavorHooks: [
+        'It belonged to somebody’s father. It was his favorite. He wore it to family dinners. On purpose.',
+        'Warm. Always warm. There is no toe in it. There is warmth in it.',
+      ],
+    },
+    {
+      name: 'Tankard', type: 'tool', crude: true,
+      statHooks: [
+        'Refills with something alcoholic every hour; the something is not consistent and is sometimes not liquid',
+        'Drinking grants +{X} courage and -{X} to every roll that courage makes you attempt',
+      ],
+      flavorHooks: [
+        'The rim is worn down on one side by ten thousand identical bad nights.',
+        'Somebody carved “LAST ONE” into the base. The carving has been crossed out and redone eleven times.',
+      ],
+    },
+    {
+      name: 'Loincloth', type: 'armor', crude: true,
+      statHooks: [
+        'Coverage: negotiable. Confidence: unearned and total.',
+        '+{X} to seduction, -{X} to being taken seriously by anyone holding a real weapon',
+      ],
+      flavorHooks: [
+        'Barbarian-standard. It has seen more combat than most kingdoms and less soap than all of them.',
+        'It has never been washed, only rested. It is resting now. Do not wake it.',
+      ],
+    },
+    {
+      name: 'Chastity Belt', type: 'armor', crude: true,
+      statHooks: [
+        'Protects, comprehensively, the one region nobody was aiming for anyway',
+        'The key was lost {X} centuries ago. The lock has since developed opinions about that.',
+      ],
+      flavorHooks: [
+        'A monument to one nobleman’s trust issues, still standing long after the marriage, the nobleman, and the kingdom.',
+        'It clanks. In rhythm. With your walking. Everyone can hear the rhythm and everyone knows the rhythm.',
+      ],
+    },
+    {
+      name: 'Chamber Pot', type: 'tool', crude: true,
+      statHooks: [
+        'Effectiveness varies entirely with how the day is going',
+        'Can be worn as a helmet. The dungeon logs everyone who does. The log is read aloud annually.',
+      ],
+      flavorHooks: [
+        'Porcelain, gilt-rimmed, and used. Historically significant. Historically unwashed.',
+        'A duke died on this. Mid-sentence. The sentence was a complaint about the pot.',
+      ],
+    },
+    {
+      name: 'Bone Whistle', type: 'trinket', crude: true,
+      statHooks: [
+        'Blowing it summons something within {X} miles that heard it and now wants to know who blew it',
+        'The pitch is exactly wrong. Dogs weep. Men explain that they are not weeping.',
+      ],
+      flavorHooks: [
+        'It is somebody’s. The bone, that is. It is somebody’s bone, and the somebody is nearby, and short one.',
+        'Everyone who finds it blows it once. Everyone. Nobody has ever managed not to. You already have.',
+      ],
+    },
+    {
+      name: 'Wineskin', type: 'potion', crude: true,
+      statHooks: [
+        'Gets stronger as the night makes worse suggestions',
+        'Restores {X} HP; removes an equal quantity of judgment and the memory of removing it',
+      ],
+      flavorHooks: [
+        'The previous owner drank the whole thing, fought a bear, won, and cannot be told about it without crying.',
+        'It sloshes when nobody is moving it. It is keeping its own hours.',
+      ],
+    },
     // ── Weapons ────────────────────────────────────────────────────────────
     {
       name: 'Shortsword', type: 'weapon',
@@ -487,6 +576,54 @@
   // Absurd, useless, and each one slightly wrong in a way that follows you.
   const JUNK_OBJECTS = [
     {
+      name: 'A Crusty Sock (Not From a Pair)',
+      stats: ['Stiff enough to stand unaided, and it does', 'Armor: 0. Deterrent: considerable.'],
+      flavor: 'Nobody has ever asked what happened to this sock. The dungeon volunteers the answer anyway, at night, in detail.',
+      crude: true,
+    },
+    {
+      name: 'Somebody’s Used Loincloth',
+      stats: ['Emits a smell with a {X}-foot radius and, arguably, opinions', 'Cannot be burned. It has tried to burn itself.'],
+      flavor: 'Still warm. It has been in this box for two hundred years and it is still warm. Take that up with someone else.',
+      crude: true,
+    },
+    {
+      name: 'A Chamber Pot, Recently Used',
+      stats: ['Contents: present', 'Utility: 1/10, and that one point is spite'],
+      flavor: 'The dungeon wants you to know it did not do this. The dungeon is naming no names. The dungeon is, however, looking at you.',
+      crude: true,
+    },
+    {
+      name: 'Half a Sausage (Gnawed)',
+      stats: ['Restores {X} HP and a lifetime of questions', 'The teeth marks do not match any known jaw'],
+      flavor: 'Someone was eating this. Someone stopped. The stopping was not voluntary and the sausage was not the reason.',
+      crude: true,
+    },
+    {
+      name: 'A Jar of Something',
+      stats: ['Sloshes. Warm. Do not open. You will open it.', 'Value: {X} gold to the wrong sort of collector'],
+      flavor: 'The label came off centuries ago. Everyone who has held it has arrived at the same theory and refused to say it out loud.',
+      crude: true,
+    },
+    {
+      name: 'A Tooth With a Filling Made of Gold',
+      stats: ['Value: {X} gold, minus the dental extraction fee you already paid in kind', 'Still slightly warm from the jaw'],
+      flavor: 'It was pulled recently and not by a dentist. The root is intact, which tells you about the technique and the hurry.',
+      crude: true,
+    },
+    {
+      name: 'A Bucket of Suspicious Broth',
+      stats: ['Restores {X} HP', 'Anyone who watches you drink it takes {X} psychic damage'],
+      flavor: 'There are things floating in it. Some of them are floating on purpose. One of them surfaced to look at you and went back down.',
+      crude: true,
+    },
+    {
+      name: 'The Previous Adventurer’s Underwear',
+      stats: ['Armor: +0', 'You now know his name. He is telling you. He will not stop telling you.'],
+      flavor: 'Laundered never. Recovered posthumously. The dungeon considers this a full set of remains and has closed the file.',
+      crude: true,
+    },
+    {
       name: 'A Single Left Sock',
       stats: ['Slightly damp. Always. Regardless of circumstances.', 'Armor: technically'],
       flavor: 'You checked. There is no right sock. There never was a right sock. The concept was a lie.',
@@ -622,6 +759,36 @@
   // The power is real. The price is in the second sentence.
   const WONDROUS_OBJECTS = [
     {
+      name: 'The Never-Empty Tankard',
+      stats: ['Refills forever with strong drink', 'Drinker gains +{X} to everything and -{X} to knowing what everything is'],
+      flavor: 'Undefeated. Forty-one champions have tried to drain it. Their names are on the base, in the order they gave up, then in the order they died.',
+      crude: true,
+    },
+    {
+      name: 'Codpiece of the Unearned Legend',
+      stats: ['Armor: +{X}', 'All who behold it must save or believe the rumours, which then become true'],
+      flavor: 'It does nothing. The reputation does everything. Three wars ended because of a reputation this codpiece invented on the walk over.',
+      crude: true,
+    },
+    {
+      name: 'The Honest Mirror (Full Length)',
+      stats: ['Shows you exactly as others see you, naked, in unforgiving light', '+{X} Wisdom, permanently, immediately, at a cost'],
+      flavor: 'Nobody has ever looked twice. One man looked once and went to become a monk, in a hurry, on foot.',
+      crude: true,
+    },
+    {
+      name: 'Girdle of Absolute Continence',
+      stats: ['You will never again need a privy', 'It holds everything. It is holding it now. It holds a running total.'],
+      flavor: 'Blessed by a saint who died of something related. The wearer feels magnificent and, on some level they cannot name, overdue.',
+      crude: true,
+    },
+    {
+      name: 'The Sobering Stone',
+      stats: ['Once per day: instantly cure any drunkenness', 'The cured party receives every memory at once, in order, at full volume'],
+      flavor: 'Used twice in recorded history. Both users asked, immediately and sincerely, to be made drunk again.',
+      crude: true,
+    },
+    {
       name: 'Compass of Exits',
       stats: ['Always points to the nearest exit, including metaphorical ones', 'Once per day: reveals a door that was pretending to be a wall'],
       flavor: 'It has never been wrong. It has occasionally been cruel about it.',
@@ -714,7 +881,28 @@
   ];
 
   // Prefixes: tone-setting adjectives with optional bonus jokes.
-  const PREFIXES = [
+  const CRUDE_PREFIXES = [
+    { text: 'Daddy’s', flavor: 'It was Daddy’s. Daddy had a whole thing going on. Nobody in the family discusses the thing.' },
+    { text: 'Crotch-Warmed', stat: '+{X} to heat retention; the heat is not yours and never was' },
+    { text: 'Piss-Soaked', stat: '-{X} to diplomacy, +{X} to territory disputes, which you will now win' },
+    { text: 'Shit-Faced', stat: '+{X} damage, -{X} accuracy, +100% confidence, 0% recollection' },
+    { text: 'Sweat-Cured', flavor: 'Aged in a gambeson for eleven years by a man who considered bathing a moral failing.' },
+    { text: 'Fondled', flavor: 'Extensively. Lovingly. By many hands, over centuries. It has stopped flinching. That happened recently.' },
+    { text: 'Chafing', stat: 'Deals {X} damage per hour to you, specifically, in the worst available place' },
+    { text: 'Unwashed', flavor: 'The smell arrives four seconds before the item does and stays nine hours after it leaves.' },
+    { text: 'Backdoor-Tested', stat: 'Certified by an inspector who has since changed careers, name, and continent' },
+    { text: 'Well-Endowed', stat: '+{X} to a stat the dungeon has declined to name in mixed company' },
+    { text: 'Post-Coital', flavor: 'It is exhausted, faintly smug, and would rather not talk right now.' },
+    { text: 'Rank', stat: 'Enemies must save or gag; allies get no save, on purpose, as a lesson' },
+    { text: 'Freshly Passed', flavor: 'Out of a goblin. Recently. The goblin is relieved. You should be many things, and relieved is not among them.' },
+    { text: 'Cheeks-Out', stat: '+{X} to mobility, -{X} to armor coverage in the region most likely to be attacked' },
+    { text: 'Drunk', stat: 'Rolls twice, takes whichever result it finds funnier' },
+    { text: 'Grubby', flavor: 'The grime is load-bearing. Cleaned once. It fell apart and the cleaner was billed.' },
+    { text: 'Bottom-Shelf', stat: '-{X} to everything except regret, which scales beautifully' },
+    { text: 'Suspiciously Sticky', flavor: 'Four adventurers have asked what it is. The dungeon answered one of them. He walked into the sea.' },
+  ];
+
+  const CLEAN_PREFIXES = [
     { text: 'Vaguely Apologetic', flavor: 'It has done something. It will not say what. The stains suggest a category.' },
     { text: 'Passive-Aggressive', stat: 'Deals +{X} damage, but sighs first' },
     { text: 'Slightly Haunted', stat: 'A ghost lives in it. She has opinions. She is usually right, which is worse.' },
@@ -742,8 +930,33 @@
     { text: 'Court-Ordered', stat: 'You are required to carry this. The paperwork is in the handle. Do not open the handle.' },
   ];
 
+  const PREFIXES = [...CRUDE_PREFIXES, ...CLEAN_PREFIXES];
+
   // Suffixes: "of X" titles with optional bonus jokes.
-  const SUFFIXES = [
+  const CRUDE_SUFFIXES = [
+    { text: 'of Girth', stat: '+{X} to girth. The dungeon measured. The dungeon writes it down. The dungeon tells people.' },
+    { text: 'of the Shit-Faced Drunk', stat: '+{X} damage, -{X} to hitting the intended target, +{X} to hitting a friend' },
+    { text: 'of the Foot Fetish', flavor: 'It only activates near bare feet. It has never explained this. It has never needed to.' },
+    { text: 'of Unwiped Shame', stat: 'Leaves a trail. Trackers gain +{X}. So does everyone else with a nose.' },
+    { text: 'of the Back Alley', flavor: 'Acquired behind a tavern, from a man who was leaving anyway, at a price that suited his hurry.' },
+    { text: 'of Premature Discharge', stat: 'Fires early. Always early. It has apologized {X} times and improved zero.' },
+    { text: 'of the Weeping Groin', stat: 'Deals {X} damage to the wielder\'s dignity per round; the wound is emotional and slightly literal' },
+    { text: 'of Grandma’s Basement', flavor: 'It was down there for sixty years. So was the box. So was the reason for the box.' },
+    { text: 'of the Wet Fart', stat: 'Emits a sound on activation. Enemies must save or laugh. You must save or die of it.' },
+    { text: 'of Regrettable Choices', flavor: 'Every previous owner made the same decision at the same moment. The dungeon has the footage.' },
+    { text: 'of the Village Bicycle', stat: 'Everyone has had a turn. It remembers all of them. It has favorites and it is not you.' },
+    { text: 'of Rancid Confidence', stat: '+{X} to intimidation, sourced entirely from smell' },
+    { text: 'of the Third Nipple', flavor: 'It has one. Nobody asked it to have one. It is not sorry, and it will show anyone.' },
+    { text: 'of Cheap Liquor', stat: 'Restores {X} HP, removes {X} memories, keeps the worst one for contrast' },
+    { text: 'of the Bad Decision', flavor: 'It was funny at the time. Nobody involved thinks it is funny now. It thinks it is hilarious.' },
+    { text: 'of Swamp Ass', stat: '-{X} to comfort, +{X} to a swamp that follows you' },
+    { text: 'of the Morning After', stat: 'All effects are excellent, then arrive again at dawn, worse, uninvited' },
+    { text: 'of Uncomfortable Length', stat: '+{X} reach. Doorways are now a negotiation you lose.' },
+    { text: 'of the Tavern Wench’s Revenge', flavor: 'She was owed money. She was paid in this. She would like it known she came out ahead.' },
+    { text: 'of Loose Morals', stat: 'Works for anyone who picks it up, immediately, enthusiastically, with no loyalty whatsoever' },
+  ];
+
+  const CLEAN_SUFFIXES = [
     { text: 'of Mild Inconvenience', stat: 'Enemies suffer -1 to all rolls and a pebble in their shoe, forever, even after death' },
     { text: 'of the Unpaid Intern', stat: 'Does everything; credit goes to your other equipment; it is keeping a list' },
     { text: 'of Probable Doom', stat: 'Doom probability: 60%, rounded down from 100% as a courtesy' },
@@ -770,8 +983,25 @@
     { text: 'of the Deep Discount', flavor: 'Marked down from a price that, if you saw it, would explain everything and help nothing.' },
   ];
 
+  const SUFFIXES = [...CRUDE_SUFFIXES, ...CLEAN_SUFFIXES];
+
   // Materials: mostly for mid-tier names.
-  const MATERIALS = [
+  const CRUDE_MATERIALS = [
+    'Ball-Sweat Bronze',
+    'Unwashed Leather',
+    'Rendered Goblin Fat',
+    'Tavern-Floor Oak',
+    'Piss-Tempered Steel',
+    'Boiled Arse-Hide',
+    'Backwash Crystal',
+    'Sour-Milk Marble',
+    'Bathhouse Copper',
+    'Knuckle Bone',
+    'Latrine-Cured Tin',
+    'Hangover Glass',
+  ];
+
+  const CLEAN_MATERIALS = [
     'Gently-Used Iron',
     'Recalled Mithril',
     'Compressed Regret',
@@ -796,16 +1026,27 @@
     'Ethically Ambiguous Ivory',
   ];
 
+  const MATERIALS = [...CRUDE_MATERIALS, ...CLEAN_MATERIALS];
+
   // Trash-tier name decorations. Trash doesn't earn a real prefix.
   const TRASH_DECORATIONS = {
     pre: [
       'Broken', 'Bent', 'Chewed', 'Soggy', 'Complimentary', 'Slightly Melted',
       'Pre-Looted', 'Posthumous', 'Court-Evidence', 'Biodegrading', 'Motivational',
     ],
+    crudePre: [
+      'Crusty', 'Pissed-On', 'Gnawed', 'Sticky', 'Half-Digested', 'Sweaty',
+      'Flea-Ridden', 'Skidmarked', 'Mouldy', 'Third-Hand', 'Suspiciously Warm',
+    ],
     post: [
       '(Cracked)', '(Damp)', '(Refurbished)', '(Final Sale)', '(Some Assembly Missing)',
       '(Haunted, but Lazy)', '(Recovered From a Drain)', '(As-Is)', '(Smells Wrong)',
       '(Previously Swallowed)', '(Warranty Voided by the Incident)', '(Found in the Walls)',
+    ],
+    crudePost: [
+      '(Previously Excreted)', '(Do Not Sniff)', '(Still Warm)', '(Crotch-Adjacent)',
+      '(Licked)', '(Recovered From a Corpse, Badly)', '(Smells of Regret and Urine)',
+      '(Someone Slept On This)', '(Sold As Seen, Wept Over Later)',
     ],
   };
 
@@ -819,7 +1060,25 @@
     'Grudgekeeper', 'Susan', 'The Backup Plan', 'Twelve Regrets', 'The Character Witness',
   ];
 
-  const LEGENDARY_EPITHETS = [
+  const CRUDE_LEGENDARY_EPITHETS = [
+    'the Unwiped',
+    'Splitter of Trousers',
+    'Bane of the Marriage Bed',
+    'the {base} They Do Not Discuss at Dinner',
+    'Ruiner of Perfectly Good Underwear',
+    'the Reason the Brothel Has a Waiver',
+    'Girthbringer',
+    'the {base} That Made a Bishop Swear',
+    'Emptier of Bladders',
+    'Patron of the Morning-After Regret',
+    'the Unflushed',
+    'She Who Ends Bloodlines Personally',
+    'the {base} of a Thousand Bad Nights',
+    'Deflowerer of the Ninth Floor',
+    'the Sticky Verdict',
+  ];
+
+  const CLEAN_LEGENDARY_EPITHETS = [
     'Devourer of Warranties',
     'Bane of Load-Bearing Walls',
     'Herald of the Refund',
@@ -846,8 +1105,25 @@
     'the Unsubtle',
   ];
 
+  const LEGENDARY_EPITHETS = [...CRUDE_LEGENDARY_EPITHETS, ...CLEAN_LEGENDARY_EPITHETS];
+
   // Cursed items: monkey's-paw twists appended to otherwise-glorious stats.
-  const CURSED_TWISTS = [
+  const CRUDE_CURSED_TWISTS = [
+    '+10 to every stat. You are permanently, visibly aroused in combat. Enemies have filed a complaint. The complaint was upheld.',
+    'Grants perfect health. You will shit yourself once per day, at a time the item selects for maximum audience.',
+    'You are irresistible to everyone who meets you. Everyone. The dungeon is full of things that meet you.',
+    'Doubles your lifespan. You will spend the extra years incontinent and lucid, in that order, aware of both.',
+    '+15 Charisma. Your voice is now your mother’s. Everyone hears it. You hear it most.',
+    'You never need to eat again. You will still be hungry. Constantly. For something the item will eventually name.',
+    'Grants immortality. You stop aging. Nothing else stops. Your bladder in particular does not stop.',
+    'You become the greatest lover in the realm. The realm keeps records. The records are public. Your mother has read them.',
+    'All your wounds heal overnight. You wake covered in someone else’s fluids and a note that says “even.”',
+    'Grants perfect memory. You now remember every single thing you have ever done drunk, in order, forever.',
+    'You can speak to any creature. They all want to talk about your body. They have notes. The notes are detailed.',
+    'Absolute protection from harm. You sweat continuously and horribly. Nobody will stand near enough to save.',
+  ];
+
+  const CLEAN_CURSED_TWISTS = [
     '+10 Strength. Your arms now belong to the item. It lets you borrow them. It counts the borrowing.',
     'Grants flight. Landing sold separately.',
     'You cannot die while wielding it. You will want to. It knows you will want to. That is the point.',
@@ -868,6 +1144,8 @@
     'Summons your greatest ally in your hour of need. Your hour of need is scheduled. It knows the hour. It will not tell you the hour.',
   ];
 
+  const CURSED_TWISTS = [...CRUDE_CURSED_TWISTS, ...CLEAN_CURSED_TWISTS];
+
   // Frames for assembling flavor text around an item's bespoke hook.
   // {hook} = the item's flavorHook, {place} = a PLACES entry.
   const FLAVOR_FRAMES = [
@@ -882,7 +1160,22 @@
     '{hook} Last catalogued in {place}. The catalog did not survive.',
   ];
 
-  const PLACES = [
+  const CRUDE_PLACES = [
+    'the brothel’s lost-and-found',
+    'a latrine pit with unusually good acoustics',
+    'the floor of a tavern, at closing, in a puddle',
+    'under a barbarian’s loincloth',
+    'the bathhouse drain on the ninth floor',
+    'a drunk paladin’s saddlebag',
+    'somewhere inside a troll, retrieved the slow way',
+    'the back room of an establishment with no sign',
+    'a bachelor party that became a war crime',
+    'the bottom of a chamber pot in a duke’s bedroom',
+    'a bard’s bedroll, which explains the smell',
+    'the crotch of a very old suit of armor',
+  ];
+
+  const CLEAN_PLACES = [
     'a mimic’s stomach',
     'the dungeon’s lost-and-found',
     'the crawlspace beneath a suspiciously polite altar',
@@ -902,6 +1195,8 @@
     'a tax audit that turned violent',
     'somebody’s last known location',
   ];
+
+  const PLACES = [...CRUDE_PLACES, ...CLEAN_PLACES];
 
   // The System's built-in snark, by rarity. Always used as the offline fallback
   // when AI announcer mode is off or errors.
@@ -951,11 +1246,64 @@
     ],
   };
 
+  // The crude register, kept in its own pool so the generator can lean on
+  // it heavily while the drier originals stay in rotation.
+  const CRUDE_SYSTEM_LINES = {
+    trash: [
+      'Ah. Shit. Literally, in one documented case, and I am not saying which.',
+      'The box shat this out. I watched it happen. It was not dignified for either of you.',
+      'You reached into a magic box and pulled out this. Somewhere, your father feels a disappointment he cannot explain.',
+      'I have seen corpses looted with more enthusiasm than you are about to muster.',
+      'Congratulations, you absolute sponge. That is not a compliment. Sponges are at least useful and absorbent.',
+      'This is the loot equivalent of a wet fart in a crowded lift. Technically an event. Universally unwelcome.',
+      'Pick it up. Go on. Let everyone watch you decide it is worth keeping.',
+    ],
+    common: [
+      'Technically loot. Barely. Like a piss is technically a bath.',
+      'It works. That is the whole review. That is also your annual performance review.',
+      'Middling. Forgettable. You two are going to get on famously.',
+      'Not shit. Not good. The exact texture of your entire personality.',
+    ],
+    uncommon: [
+      'Green. Like the thing growing in your boots that you have decided not to investigate.',
+      'Better than you deserve, which is a low bar I keep watching you limbo under.',
+      'Oh, look at you. Get it out. Show everyone. Nobody is going to clap but get it out anyway.',
+      'A genuine upgrade. Try not to embarrass it the way you embarrassed the last one.',
+    ],
+    rare: [
+      'Rare! Go on, tell someone. Tell a stranger. Watch their face do the thing where they stop caring mid-sentence.',
+      'Blue. Rare. Genuinely good. I am as shocked as you and I have considerably better information.',
+      'You lucky bastard. And I mean that with the full weight of what I know about your parents.',
+    ],
+    epic: [
+      'Well, piss on my circuits. That is an actual, genuine, upsettingly good item.',
+      'Purple. The colour of royalty, bruises, and whatever you will be once the dungeon reads this drop log.',
+      'Epic. Somewhere a better adventurer just felt a chill and does not know why. It is you. You are the chill. Enjoy it, briefly.',
+    ],
+    legendary: [
+      'Oh, you jammy shit. You absolute horseshoe-swallowing bastard. Look at it. LOOK at it.',
+      'Legendary. I need a moment. Not for you. I do not have moments for you. This one is mine.',
+      'A god just felt that. A god just sat up in the dark and asked who. Do not be holding it when the answer arrives.',
+      'One point five percent. One point five. And it went to you, of all the sweating, gormless meat in this dungeon.',
+    ],
+    cursed: [
+      'Oh, that is a bad one. That is a genuinely, deliciously, catastrophically bad one. I am thrilled.',
+      'Magnificent. Powerful. Absolutely going to ruin you in a way that will require a specialist and a bucket.',
+      'You have picked up something that had already picked you up. It got there first. It usually does.',
+      'Enjoy it. Truly. And when it starts, and it will start, remember that I said nothing and that I was smiling.',
+    ],
+  };
+
   const LOOT = (globalThis.LOOT ??= {});
   LOOT.tables = {
     BOX_TIERS, RARITIES, BASE_ITEMS, JUNK_OBJECTS, WONDROUS_OBJECTS,
     PREFIXES, SUFFIXES, MATERIALS, TRASH_DECORATIONS,
     LEGENDARY_NAMES, LEGENDARY_EPITHETS, CURSED_TWISTS,
     FLAVOR_FRAMES, PLACES, SYSTEM_LINES,
+    // Crude-only pools. The generator draws from these most of the time (see
+    // CRUDE_BIAS) so the register stays filthy instead of merely occasional.
+    CRUDE_PREFIXES, CRUDE_SUFFIXES, CRUDE_MATERIALS,
+    CRUDE_LEGENDARY_EPITHETS, CRUDE_CURSED_TWISTS, CRUDE_PLACES,
+    CRUDE_SYSTEM_LINES,
   };
 })();

@@ -44,7 +44,7 @@
       </div>
       <p id="ai-status" class="ai-status" aria-live="polite"></p>
 
-      <h2 class="ai-subhead">NEURAL VOICE &mdash; FREE, IN YOUR BROWSER</h2>
+      <h2 class="ai-subhead">NEURAL VOICE</h2>
       <p class="ai-note">
         A real neural voice with <strong>no key, no account, and no
         quota</strong>: the open-weight
@@ -67,6 +67,24 @@
       </div>
       <p id="local-status" class="ai-status" aria-live="polite"></p>
 
+      <label class="quip-row">
+        <input type="checkbox" id="tts-quip">
+        <span>Punchline only &mdash; speak just The System's line instead of
+        reading out the whole item.</span>
+      </label>
+
+      <label class="remember-row">
+        <input type="checkbox" id="remember-keys">
+        <span>Remember keys on this device &mdash; stores them in this
+        browser's localStorage so AI mode comes back on by itself after a
+        reload. Only tick this on a device you trust: anyone with access to
+        this browser profile could read them. Untick (or disable a mode) to
+        forget.</span>
+      </label>
+
+      <!-- Cloud voice (ElevenLabs) is retired but kept wired up: unhide this
+           section to bring it back. Everything below still works as it did. -->
+      <div id="cloud-voice" hidden>
       <h2 class="ai-subhead">CLOUD VOICE (ELEVENLABS)</h2>
       <p class="ai-note">
         Optional upgrade for voice mode: paste an
@@ -88,23 +106,8 @@
         <button id="tts-enable" type="button">ENABLE</button>
       </div>
       <p id="tts-status" class="ai-status" aria-live="polite"></p>
-      <label class="quip-row">
-        <input type="checkbox" id="tts-quip">
-        <span>Punchline only &mdash; the cloud voice speaks just The System's
-        line instead of the full item readout. ElevenLabs bills per character,
-        and the full readout costs several times more; this stretches a free
-        month a long way.</span>
-      </label>
       <p id="tts-usage" class="ai-status" aria-live="polite"></p>
-
-      <label class="remember-row">
-        <input type="checkbox" id="remember-keys">
-        <span>Remember keys on this device &mdash; stores them in this
-        browser's localStorage so AI and cloud voice come back on by
-        themselves after a reload. Only tick this on a device you trust:
-        anyone with access to this browser profile could read them.
-        Untick (or disable a mode) to forget.</span>
-      </label>
+      </div>
     </section>
   </header>
 
