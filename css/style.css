@@ -678,6 +678,13 @@ body.cursed-quake { animation: cursed-quake 0.5s linear; }
 .report-facts { margin: 0.4rem 0 0; color: var(--dim); font-size: 0.85rem; }
 
 /* ── Footer ─────────────────────────────────────────────────────────── */
+.adult-note {
+  margin: 0 0 0.5rem;
+  color: var(--c-cursed);
+  letter-spacing: 0.08em;
+  opacity: 0.85;
+}
+
 footer {
   margin-top: 3rem;
   color: var(--dim);
