@@ -46,7 +46,10 @@
   // The pity system real loot boxes hide, made loudly visible. After
   // MERCY_AT consecutive sub-rare drops, the next box is guaranteed rare or
   // better — dispensed under protest. URL-forced rarity (?rarity=) wins.
-  const MERCY_AT = 10;
+  // Tuned against the rarity table: with rare-or-better at ~39%, a run of 6
+  // duds happens on ~5% of opens. At the old threshold of 10 it would fire
+  // on 0.7% and the meter would be scenery.
+  const MERCY_AT = 6;
   const mercyEl = document.getElementById('mercy');
 
   function paintMercy(engaged) {
