@@ -282,6 +282,29 @@ free either way). The System accepts no liability. The System never has.
 No workflow file or build configuration is needed — it's all static files.
 (A `.nojekyll` file is included so Pages serves everything as-is.)
 
+### Serving it from your own domain
+
+Pages will host it on a subdomain of a domain you own, free, with automatic
+HTTPS, and it keeps redeploying itself on every push. **Do the DNS record
+first** — setting the custom domain before DNS resolves takes the site
+offline until it propagates.
+
+1. At your DNS provider, add a `CNAME` record: name `loot` (or whatever
+   subdomain you want), value `<username>.github.io` — note the trailing
+   `github.io`, *not* the repository name
+2. Wait for it to resolve (usually minutes; allow up to 24 hours)
+3. Repo **Settings → Pages → Custom domain**, enter `loot.example.com`, save.
+   GitHub commits a `CNAME` file to the repo for you
+4. Once the certificate is issued, tick **Enforce HTTPS**
+
+For an apex domain (`example.com` with no subdomain) use four `A` records
+instead, pointing at `185.199.108.153`, `185.199.109.153`, `185.199.110.153`
+and `185.199.111.153`.
+
+Because every path in the app is relative, it also works from a plain
+subdirectory on ordinary web hosting — download the repo and drop the files
+into, say, `public_html/loot/`. You just lose the automatic redeploys.
+
 ## Disclaimer
 
 A fan-made parody generator inspired by the LitRPG genre. Not affiliated with
