@@ -18,7 +18,7 @@ darkly amused game-show host — hands you something like:
 
 - **Box tiers** — every opening rolls a box first: Bronze → Silver → Gold →
   Platinum → Legendary → Celestial, each with its own loot-rarity odds
-- **Seven rarities** — Trash (40%) through Legendary (1.5%) and Cursed (0.5%),
+- **Seven rarities** — Trash (~17%) through Legendary (~5.4%) and Cursed (~1.1%),
   with escalating visual treatment: matte disappointment, pulsing glow,
   legendary shimmer, cursed glitch flicker
 - **Random objects** — low tiers cough up absurd junk (A Jar of Sighs, A Rock
