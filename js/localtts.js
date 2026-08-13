@@ -55,28 +55,30 @@
   // ── Performance ───────────────────────────────────────────────────────
   // Kokoro takes no emotion tags, and one generate() call over a whole
   // paragraph comes out as exactly what it is: one flat read. So the line is
-  // performed the same way voice.js performs Web Speech — split into
-  // sentences, each its own clip, each with its own tempo, separated by real
-  // silence. Two knobs, because they do different things:
-  //   speed — the model's own speaking rate. Changes pace, not pitch.
-  //   rate  — playbackRate with pitch preservation OFF, so it bends pitch
-  //           and tempo together. Kept subtle; past ~±8% it turns cartoonish.
-  // drift moves tempo across the line, wobble alternates it (cursed), and the
-  // punch* values stage the final sentence — the held beat before the joke.
+  // split into sentences, each rendered as its own clip and separated by real
+  // silence — and the timing is ALL the performance is allowed to touch.
+  //
+  // Tempo is deliberately NOT varied per mood. Earlier versions nudged the
+  // model's speed up for the high tiers and bent playbackRate for pitch, and
+  // the two compounded with the pace slider: legendary landed near 1.3x with
+  // resampling on top, which is exactly where Kokoro starts to sound chewed.
+  // Speed is now whatever the listener set on the pace slider, full stop, and
+  // playback runs at 1.0 so no clip is ever resampled. Pauses cost nothing in
+  // quality, so that is where the mood lives: cursed drags between sentences,
+  // legendary holds a long beat before the punchline, trash trudges.
   const DELIVERY = {
-    trash:     { speed: 0.90, rate: 0.97, drift: -0.015, wobble: 0,    pause: 340, punchPause: 520, punchSpeed: -0.06, punchRate: -0.03 },
-    common:    { speed: 1.00, rate: 1.00, drift: 0,      wobble: 0,    pause: 220, punchPause: 320, punchSpeed: -0.03, punchRate: 0 },
-    uncommon:  { speed: 1.02, rate: 1.00, drift: 0.01,   wobble: 0,    pause: 220, punchPause: 360, punchSpeed: 0.02,  punchRate: 0.01 },
-    rare:      { speed: 1.05, rate: 1.01, drift: 0.015,  wobble: 0,    pause: 240, punchPause: 400, punchSpeed: 0.03,  punchRate: 0.02 },
-    epic:      { speed: 1.08, rate: 1.02, drift: 0.02,   wobble: 0,    pause: 240, punchPause: 450, punchSpeed: 0.04,  punchRate: 0.03 },
-    legendary: { speed: 1.10, rate: 1.03, drift: 0.025,  wobble: 0,    pause: 260, punchPause: 560, punchSpeed: 0.06,  punchRate: 0.04 },
-    cursed:    { speed: 0.82, rate: 0.94, drift: -0.01,  wobble: 0.02, pause: 420, punchPause: 680, punchSpeed: -0.08, punchRate: -0.04 },
+    trash:     { pause: 340, punchPause: 520 },
+    common:    { pause: 220, punchPause: 320 },
+    uncommon:  { pause: 220, punchPause: 360 },
+    rare:      { pause: 240, punchPause: 400 },
+    epic:      { pause: 240, punchPause: 450 },
+    legendary: { pause: 260, punchPause: 560 },
+    cursed:    { pause: 420, punchPause: 680 },
   };
 
   // Voices differ a lot in natural pace (Emma reads noticeably slower than
-  // Fenrir), and the per-mood numbers above are only a shape — this scales
-  // the whole performance so the listener sets the actual tempo. Pauses
-  // shrink as speed rises, or a brisk read still feels padded.
+  // Fenrir), so the listener sets the tempo outright. Pauses shrink as speed
+  // rises, or a brisk read still sits in dead air.
   const SPEED_RANGE = [0.8, 1.6];
   const DEFAULT_SPEED = 1.15;
   let speedScale = DEFAULT_SPEED;
@@ -93,12 +95,10 @@
     const sentences = splitSentences(text);
     return sentences.map((sentence, i) => {
       const isPunch = i === sentences.length - 1 && sentences.length > 1;
-      const wobble = mood.wobble ? (i % 2 === 0 ? mood.wobble : -mood.wobble) : 0;
-      const base = mood.speed + mood.drift * i + (isPunch ? mood.punchSpeed : 0);
       return {
         text: sentence,
-        speed: clamp(base * speedScale, 0.5, 2),
-        rate: clamp(mood.rate + wobble + (isPunch ? mood.punchRate : 0), 0.85, 1.15),
+        // One speed for every clip: exactly what the pace slider says.
+        speed: clamp(speedScale, SPEED_RANGE[0], SPEED_RANGE[1]),
         // Silence held BEFORE this clip. Comic timing lives here, and it
         // tightens with speed so a fast read doesn't sit in dead air.
         prePause: i === 0 ? 0 : Math.round((isPunch ? mood.punchPause : mood.pause) / speedScale),
@@ -203,16 +203,13 @@
 
   // Play one clip through to its end, pitch-bent by `rate`. Resolves when the
   // audio finishes so the next clip can be timed against it.
-  function playClip(rawAudio, rate) {
+  // Play one clip through to its end. Playback rate is left at 1.0 on
+  // purpose — resampling the model's output is what made the fast tiers
+  // sound chewed. Tempo belongs to the model (via the pace slider), not here.
+  function playClip(rawAudio) {
     return new Promise((resolve) => {
       const url = URL.createObjectURL(rawAudio.toBlob());
       const el = new Audio(url);
-      // Pitch preservation OFF is the whole point: it lets playbackRate bend
-      // pitch, which is the only pitch control this model gives us.
-      el.preservesPitch = false;
-      el.mozPreservesPitch = false;
-      el.webkitPreservesPitch = false;
-      el.playbackRate = rate;
       currentAudio = el;
       let settled = false;
       const done = () => {
@@ -261,7 +258,7 @@
           await wait(plan[i].prePause);
           if (myTicket !== ticket) return { status: 'skipped' };
         }
-        await playClip(clip, plan[i].rate);
+        await playClip(clip);
         if (myTicket !== ticket) return { status: 'skipped' };
       }
       announce('ready');

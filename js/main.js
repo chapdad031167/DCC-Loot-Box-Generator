@@ -237,13 +237,15 @@
       aiStatus.textContent = 'AI announcer off. Key forgotten. The System reverts to its greatest hits.';
     } else {
       const key = apiKeyInput.value.trim();
-      if (!key) {
+      if (!key && !announcer.proxyAvailable) {
         aiStatus.textContent = 'No key, no live snark. Paste an Anthropic API key first.';
         return;
       }
-      announcer.configure({ key, on: true });
-      saveKeys({ anthropic: key });
-      aiStatus.textContent = 'AI announcer on. The System is now improvising. It was always improvising; now it is billing you for it.';
+      announcer.configure({ key: key || null, on: true });
+      if (key) saveKeys({ anthropic: key });
+      aiStatus.textContent = key
+        ? 'AI announcer on. The System is now improvising. It was always improvising; now it is billing you for it.'
+        : 'AI announcer on, on the house. The System is improvising and somebody else is paying for it. Not you. Enjoy that.';
     }
     paintAiButtons();
   });
@@ -338,6 +340,13 @@
     ttsStatus.textContent = 'Cloud voice on. The System has hired professional vocal cords. It is billing you for them.';
     voice.speak('Cloud voice enabled. Yes. This is what I actually sound like.', 'legendary');
   });
+
+  // With a shared proxy deployed (see worker/), visitors need no key at all:
+  // relabel the panel so the key box reads as the optional thing it is.
+  if (announcer.proxyAvailable) {
+    apiKeyInput.placeholder = 'sk-ant-… (optional — a key is already provided)';
+    aiStatus.textContent = 'AI announcer is available here with no key of your own. Paste one only if you would rather use your own account.';
+  }
 
   // ── Local neural voice (Kokoro, free, no key) ─────────────────────────
   // Opt-in because the first enable pulls ~90MB of model weights. Once on,

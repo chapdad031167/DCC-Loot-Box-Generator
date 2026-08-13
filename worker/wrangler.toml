@@ -1,0 +1,11 @@
+name = "loot-announcer"
+main = "announcer-proxy.js"
+compatibility_date = "2026-01-01"
+
+# Rate limiting storage. Create the namespace and paste its id here:
+#   npx wrangler kv namespace create RATE_LIMIT_KV
+# Without this binding the Worker still runs, but requests are unmetered —
+# bind it before you share the link anywhere public.
+# [[kv_namespaces]]
+# binding = "RATE_LIMIT_KV"
+# id = "paste-the-id-wrangler-prints-here"

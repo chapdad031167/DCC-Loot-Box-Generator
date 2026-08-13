@@ -175,6 +175,24 @@ Cost note: each announcement is one small API call (a few hundred tokens).
 Use a key with a spending limit if you're going to open a truly deranged
 number of boxes. The System believes in you, statistically alone.
 
+### Sharing AI mode with visitors (optional)
+
+Visitors won't have an Anthropic key, so by default they get the 177 built-in
+punchlines and the AI panel is just an offer.
+
+To give everyone live AI lines, deploy the small Cloudflare Worker in
+[`worker/`](worker/) and set `announcerProxy` in [`js/config.js`](js/config.js)
+to its URL. The panel then enables with no key at all, and anyone who *does*
+paste their own key still uses theirs instead.
+
+**Do not put an API key in `js/config.js` or anywhere else in this repo.** It
+is a static site: everything it ships is readable by every visitor, and
+Anthropic keys have no spend cap by default. The Worker exists precisely so
+the key can live server-side where a browser cannot reach it, and it is
+deliberately not a general Claude proxy — it accepts only item text and owns
+the prompt, model, and token cap itself. Cost and rate-limiting notes are in
+[`worker/README.md`](worker/README.md).
+
 ## Voice mode (optional, off by default)
 
 Click **VOICE: OFF** in the header and The System reads its line aloud after
@@ -212,11 +230,17 @@ machine.
 
 Like the browser voice, it **performs** rather than reads. One `generate()`
 call over a whole paragraph comes out flat, so each line is split into
-sentences and rendered as separate clips, then played back with real silence
-between them — per-sentence tempo (the model's own speaking rate), a pitch
-bend (playback rate with pitch preservation off), tempo drift across the
-line, a wobble for cursed, and a held beat before the punchline. Generation
-is pipelined against playback, so only the first sentence costs any wait.
+sentences, rendered as separate clips, and played back with real silence
+between them — the pause lengths carry the mood (cursed drags, legendary
+holds a long beat before the punchline). Generation is pipelined against
+playback, so only the first sentence costs any wait.
+
+Tempo is *only* ever what you set on the pace slider. Earlier versions also
+sped the model up for the high tiers and bent playback rate for pitch, and
+the three compounded — legendary landed near 1.3x with resampling on top,
+which is exactly where Kokoro starts to sound chewed. Timing is free of
+artefacts; resampling is not, so the performance lives entirely in the
+pauses now.
 
 A **voice picker** lists all 28 Kokoro voices, grouped by gender and accent
 and labelled with the model card's quality grade, with an **AUDITION**
