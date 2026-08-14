@@ -38,13 +38,36 @@
   let chain = Promise.resolve();
   let latestTicket = 0;
 
+  // A deployed proxy (worker/) holds the key server-side, so visitors get AI
+  // mode without one of their own. A pasted key always wins: it is the
+  // caller's own quota and their explicit choice.
+  const proxyUrl = () => String(globalThis.LOOT?.config?.announcerProxy || '').trim();
+  const hasProxy = () => proxyUrl().length > 0;
+
   function configure({ key, on }) {
     if (key !== undefined) apiKey = key ? String(key).trim() : null;
-    if (on !== undefined) enabled = Boolean(on) && Boolean(apiKey);
+    if (on !== undefined) enabled = Boolean(on) && (Boolean(apiKey) || hasProxy());
     return enabled;
   }
 
+  // Via the proxy: no key crosses the wire, and the Worker owns the prompt,
+  // model, and token cap so this endpoint can't be repurposed.
+  async function requestViaProxy(itemText) {
+    const res = await fetch(proxyUrl(), {
+      method: 'POST',
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ item: itemText }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const text = String(data?.text || '').trim();
+    if (!text) throw new Error('empty response');
+    return text;
+  }
+
   async function requestLine(itemText) {
+    if (!apiKey && hasProxy()) return requestViaProxy(itemText);
     const res = await fetch(API_URL, {
       method: 'POST',
       signal: AbortSignal.timeout(TIMEOUT_MS),
@@ -78,7 +101,7 @@
   //         { status: 'ok', text } on success,
   //         { status: 'error' } on any failure (caller keeps the static snark).
   function announce(itemText) {
-    if (!enabled || !apiKey) return Promise.resolve({ status: 'skipped' });
+    if (!enabled || (!apiKey && !hasProxy())) return Promise.resolve({ status: 'skipped' });
     const ticket = ++latestTicket;
     const run = chain.then(async () => {
       if (ticket !== latestTicket) return { status: 'skipped' }; // superseded in queue
@@ -96,6 +119,8 @@
   LOOT.announcer = {
     configure, announce,
     get enabled() { return enabled; },
+    get usesProxy() { return !apiKey && hasProxy(); },
+    get proxyAvailable() { return hasProxy(); },
     get hasKey() { return Boolean(apiKey); },
   };
 })();
