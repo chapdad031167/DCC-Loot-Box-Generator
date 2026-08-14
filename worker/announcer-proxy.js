@@ -26,10 +26,13 @@ const ALLOWED_ORIGINS = [
   'http://127.0.0.1:8787', // local testing
 ];
 
-// Matches js/announcer.js so a visitor using the shared proxy hears the same
-// voice as someone on their own key. Haiku (claude-haiku-4-5) is roughly a
-// third the cost and fine for one-liners if the bill matters more than polish.
-const MODEL = 'claude-sonnet-4-6';
+// Haiku deliberately, not the Sonnet that js/announcer.js uses for a visitor's
+// own key: this endpoint is billed to whoever deploys it, and a 1-3 sentence
+// insult is well within Haiku's range. Roughly a third of Sonnet's cost — about
+// 1,400 announcements per dollar rather than 475. Claude Haiku 4.5 is the top
+// of the Haiku line; note it does not accept the `effort` parameter (that is
+// Opus/Sonnet only), so there is no depth dial to turn up here.
+const MODEL = 'claude-haiku-4-5';
 const MAX_TOKENS = 200;
 const MAX_INPUT_CHARS = 2000; // an item card is ~400; this is generous
 const RATE_LIMIT = { requests: 30, windowSeconds: 60 * 60 }; // per IP per hour

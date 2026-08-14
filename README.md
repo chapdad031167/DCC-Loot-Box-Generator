@@ -185,6 +185,10 @@ To give everyone live AI lines, deploy the small Cloudflare Worker in
 to its URL. The panel then enables with no key at all, and anyone who *does*
 paste their own key still uses theirs instead.
 
+The shared path runs Claude Haiku 4.5 rather than the Sonnet used for a
+visitor's own key — those lines are billed to whoever deployed the Worker, and
+Haiku writes a two-sentence insult for about a third of the cost.
+
 **Do not put an API key in `js/config.js` or anywhere else in this repo.** It
 is a static site: everything it ships is readable by every visitor, and
 Anthropic keys have no spend cap by default. The Worker exists precisely so

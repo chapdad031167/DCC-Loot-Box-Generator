@@ -4,6 +4,10 @@ Lets visitors use AI announcer mode **without their own Anthropic API key** —
 they just open the site and it works. You pay for the usage, so read the cost
 note at the bottom before pointing it at the world.
 
+The Worker answers on Claude Haiku 4.5 while a visitor's own key still uses
+Sonnet, on purpose: the shared lines are on your bill, and Haiku handles a
+two-sentence insult for a third of the price.
+
 ## Why a Worker instead of putting the key in the page
 
 The game is a static site on a public repo. Anything in its JavaScript is
@@ -54,10 +58,14 @@ limit is what covers that (default: 30 requests per IP per hour).
 
 ## Cost
 
-Every visitor's boxes bill your Anthropic account. One announcement is roughly
-400 input + 60 output tokens — on Sonnet that is a fraction of a cent, but a
-few thousand box openings adds up, and a determined stranger with the URL can
-open a lot of boxes. Guard rails to consider:
+Every visitor's boxes bill your Anthropic account. The Worker runs **Claude
+Haiku 4.5** — the top of the Haiku line, and about a third the cost of the
+Sonnet the app uses for a visitor's own key. One announcement is roughly 400
+input + 60 output tokens, so call it **1,400 announcements per dollar** (the
+same traffic on Sonnet would be about 475).
+
+That is cheap, not free: a few thousand openings still adds up, and a
+determined stranger with the URL can open a lot of boxes. Guard rails:
 
 - Keep the KV rate limit on, and lower `RATE_LIMIT.requests` if needed
 - Set a **monthly spend limit** on the Anthropic account itself — the only
