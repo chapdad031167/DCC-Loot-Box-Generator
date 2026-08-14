@@ -26,7 +26,10 @@ const ALLOWED_ORIGINS = [
   'http://127.0.0.1:8787', // local testing
 ];
 
-const MODEL = 'claude-sonnet-4-5';
+// Matches js/announcer.js so a visitor using the shared proxy hears the same
+// voice as someone on their own key. Haiku (claude-haiku-4-5) is roughly a
+// third the cost and fine for one-liners if the bill matters more than polish.
+const MODEL = 'claude-sonnet-4-6';
 const MAX_TOKENS = 200;
 const MAX_INPUT_CHARS = 2000; // an item card is ~400; this is generous
 const RATE_LIMIT = { requests: 30, windowSeconds: 60 * 60 }; // per IP per hour
